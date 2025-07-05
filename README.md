@@ -1,11 +1,12 @@
 # Wifi_Capping_NCUK
 
-student_backend/
+Wifi_Capping_NCUK/
 ├── app.py
-├── routes/
-│   └── auth.py
 ├── models/
-│   └── student.py
-├── database.py
+├── routes/
 ├── config.py
-└── requirements.txt
+├── requirements.txt
+├── init_db.py (optional)
+├── .render/
+│   └── build.sh
+└── render.yaml
