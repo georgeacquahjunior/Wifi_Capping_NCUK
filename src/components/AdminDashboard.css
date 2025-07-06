@@ -1,0 +1,45 @@
+.dashboard-container {
+  max-width: 900px;
+  margin: 50px auto;
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.ok {
+  background: #28a745;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 5px;
+}
+
+.over {
+  background: #dc3545;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 5px;
+}
+
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
