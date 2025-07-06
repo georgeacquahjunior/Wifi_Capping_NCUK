@@ -20,3 +20,19 @@ def log_usage():
     db.session.commit()
 
     return jsonify({'message': 'Usage logged successfully'}), 201
+
+@usage_bp.route('/get_usage', methods=['GET'])
+def get_usage_logs():
+    logs = UsageLog.query.all()
+    result = []
+
+    for log in logs:
+        result.append({
+            "id": log.id,
+            "student_id": log.student_id,
+            "used_mb": log.used_mb,
+            "timestamp": log.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+        })
+
+    return jsonify(result), 200
+
