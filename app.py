@@ -27,6 +27,7 @@ def create_app():
     from routes.check_limit import check_limit_bp
     app.register_blueprint(check_limit_bp)
 
+    # register admin routes
     from routes.admin import admin_bp
     app.register_blueprint(admin_bp, url_prefix='/admin')  # /admin/usage becomes /admin/usage
 
