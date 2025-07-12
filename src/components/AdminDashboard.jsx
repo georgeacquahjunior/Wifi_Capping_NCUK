@@ -3,13 +3,15 @@ import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   // 1️: Sample student data in state
-  const [students, setStudents] = useState([
-    /*{ id: 'STU001', usage: 15.6 },
-    { id: 'STU002', usage: 20.4 },
-    { id: 'STU003', usage: 8.2 },*/
-   ]);
+  const [students, setStudents] = useState([]);
 
-  const dataCap = 20; // 20GB monthly cap
+   const [searchTerm, setSearchTerm] = useState('');
+ 
+    const dataCap = 20; // 20GB monthly cap
+
+    const filteredStudents = students.filter((student) =>
+      student.id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     useEffect(() => {
     fetch('/students.json')
@@ -18,10 +20,23 @@ const AdminDashboard = () => {
       .catch((err) => console.error("Error loading students:", err));
     }, []);
 
+    const exceededStudents = students.filter((s) => {
+      return s.usage >= dataCap;
+    });
+
   // 2️: Render table rows dynamically
   return (
     <div className="dashboard-container">
       <h1>WiFi Admin Dashboard</h1>
+
+      <input type= 'text' placeholder= 'search by student ID'
+        value={searchTerm} onChange= {(e) =>setSearchTerm(e.target.value)} className= 'search-bar' /> 
+
+          {exceededStudents.length > 0 && (
+            <div className="alert">
+              {exceededStudents.length} student{exceededStudents.length > 1 ? 's have' : ' has'} exceeded the data cap!
+            </div>)
+          }
 
       <table>
         <thead>
@@ -34,7 +49,7 @@ const AdminDashboard = () => {
           </tr>
         </thead>
         <tbody>
-          {students.map((student) => {
+          {filteredStudents.map((student) => {
             const percent = Math.round((student.usage / dataCap) * 100);
             const status =
               percent >= 100
@@ -44,7 +59,7 @@ const AdminDashboard = () => {
                 : 'OK';
 
             return (
-              <tr key={student.id}>
+              <tr key={student.id} className={status === 'Exceeded' ? 'exceeded-row' : ''}>
                 <td>{student.id}</td>
                 <td>{student.usage}</td>
                 <td>{percent}%</td>
@@ -74,17 +89,18 @@ const AdminDashboard = () => {
 
 export default AdminDashboard;
 
-/*import React, { useState, useEffect } from 'react';
-import './AdminDashboard.css';
+/*{exceededStudents.length > 0 && (
+  <div className="alert">
+    🚨 {exceededStudents.length} student{exceededStudents.length > 1 ? 's have' : ' has'} exceeded the data cap!
+  </div>
+)}
 
-const AdminDashboard = () => {
-  const [students, setStudents] = useState([]);
-  const dataCap = 20;
-
-  useEffect(() => {
-    fetch('/students.json')
-      .then((res) => res.json())
-      .then((data) => setStudents(data))
-      .catch((err) => console.error("Error loading students:", err));
-  }, []);
-*/
+.alert {
+  background-color: #dc3545;
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+  */

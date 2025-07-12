@@ -1,8 +1,26 @@
+.search-bar{
+  width: 500px;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  display: block;
+}
+
 .dashboard-container {
   max-width: 900px;
   margin: 50px auto;
   padding: 20px;
   font-family: sans-serif;
+}
+
+.alert {
+  background-color: #dc3545;
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  font-weight: bold;
+  margin-bottom: 20px;
 }
 
 h1 {
@@ -28,11 +46,15 @@ th, td {
   border-radius: 5px;
 }
 
-.over {
+.warning, .exceeded {
   background: #dc3545;
   color: white;
   padding: 4px 8px;
   border-radius: 5px;
+}
+
+.exceeded-row{
+  background-color: #ffe5e5;
 }
 
 button {
