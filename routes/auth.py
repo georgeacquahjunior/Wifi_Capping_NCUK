@@ -1,15 +1,13 @@
 # backend/routes/auth.py
 
 from flask import Blueprint, request, jsonify
-from app import db
-from models.student import Student
+from models.student import Student, db
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-
     student_id = data.get('student_id')
     password = data.get('password')
 
