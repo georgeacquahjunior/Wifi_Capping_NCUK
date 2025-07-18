@@ -1,7 +1,7 @@
 # backend/create_db.py
 
 from app import app
-from models.student import db, Student
+from models.student_db import db, Student
 
 with app.app_context():
     db.create_all()
