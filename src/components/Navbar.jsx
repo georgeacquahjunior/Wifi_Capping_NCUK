@@ -20,10 +20,12 @@ export default function Navbar() {
         <Link to="/settings">Settings</Link>
         <Link to="/reports">Reports</Link>
         <Link to="/users">Users</Link>
-        <button className="logout-btn" onClick={handleLogout}>
+        <button className="logout-button" onClick={handleLogout}>
           Logout
         </button>
       </div>
     </div>
   );
-}
+} 
+
+  

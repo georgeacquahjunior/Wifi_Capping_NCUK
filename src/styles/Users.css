@@ -1,0 +1,131 @@
+.users-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.06);
+  font-family: "Segoe UI", sans-serif;
+}
+
+.users-container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 28px;
+  color: #333;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.form-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.form-container input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.form-container button {
+  padding: 10px 20px;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.form-container button:hover {
+  background-color: #0052a3;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+thead {
+  background-color: #f4f4f4;
+}
+
+thead th {
+  text-align: left;
+  padding: 12px;
+  color: #555;
+}
+
+tbody td {
+  padding: 12px;
+  border-top: 1px solid #eee;
+}
+
+tbody tr:hover {
+  background-color: #fafafa;
+}
+
+button {
+  margin-right: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #007bff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-button  {
+  background-color: #dc3545;
+}
+
+
+
+
+@media screen and (max-width: 600px) {
+  .form-container {
+    flex-direction: column;
+  }
+
+  .form-container input,
+  .form-container button {
+    width: 100%;
+  }
+
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    font-size: 14px;
+  }
+}
+
+.admin-actions button {
+  padding: 10px 16px;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.admin-actions button:hover {
+  background-color: #004a99;
+}

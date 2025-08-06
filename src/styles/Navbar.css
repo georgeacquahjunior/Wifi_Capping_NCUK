@@ -12,11 +12,13 @@
 .navbar-left h2 {
   font-size: 1.5rem;
   font-weight: bold;
+  margin-right: 20px;
 }
 
 .navbar-right {
   display: flex;
   gap: 1.5rem;
+  align-items: center;
 }
 
 .navbar-right a {
@@ -30,7 +32,7 @@
   color: #38bdf8; /* sky blue hover */
 }
 
-.logout-btn {
+.logout-button {
   background-color: #ef4444; /* red */
   border: none;
   padding: 0.5rem 1rem;
@@ -40,6 +42,6 @@
   transition: background 0.3s ease;
 }
 
-.logout-btn:hover {
+.logout-button:hover {
   background-color: #dc2626;
 }

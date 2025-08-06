@@ -9,8 +9,8 @@ function Login() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (id === "admin" && password === "123456") {
-      localStorage.setItem("loggedIn", "true");
+    if (id === "admin" && password === "NCUK@accra") {
+      localStorage.setItem("isAuthenticated", "true");
       navigate("/dashboard");
     } else {
       alert("Invalid credentials");
@@ -35,7 +35,7 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Login</button>
+        <button class="submit-button" type="submit">Login</button>
       </form>
     </div>
   );
