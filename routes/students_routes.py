@@ -44,6 +44,39 @@ def add_student():
         # Rollback in case of error
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+    
+    
+# ----------------------------
+# LOGIN - Student Login
+# Endpoint: POST /students/login
+# ----------------------------
+@student_bp.route('/students/login', methods=['POST'])
+def login_student():
+    try:
+        data = request.get_json()
+
+        student_id = data.get('student_id')
+        password = data.get('password')
+
+        if not student_id or not password:
+            return jsonify({'error': 'Missing student_id or password'}), 400
+
+        student = Student.query.filter_by(student_id=student_id).first()
+
+        if student and student.check_password(password):
+            return jsonify({'message': 'Login successful', 'student': {
+                'id': student.id,
+                'student_id': student.student_id,
+                'first_name': student.first_name,
+                'last_name': student.last_name
+            }}), 200
+        else:
+            return jsonify({'error': 'Invalid student ID or password'}), 401
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 
 # ----------------------------
 # READ - Get all students
