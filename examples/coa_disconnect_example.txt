@@ -1,0 +1,9 @@
+# Example CoA Disconnect-Request packet
+# Use with: radclient localhost:3799 coa testing123 < examples/coa_disconnect_example.txt
+
+Packet-Type = Disconnect-Request
+User-Name = "testuser"
+Acct-Session-Id = "TEST-SESSION-12345"
+NAS-IP-Address = 127.0.0.1
+Event-Timestamp = 1609459200
+Reply-Message = "Administrative disconnect - test"
