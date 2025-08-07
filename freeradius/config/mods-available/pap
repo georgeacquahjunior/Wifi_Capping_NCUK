@@ -1,0 +1,15 @@
+#
+# PAP (Password Authentication Protocol) module
+#
+
+pap {
+    # Encryption scheme for passwords
+    # auto = automatically detect the encryption scheme
+    auto_header = yes
+    
+    # Allow authentication with this module
+    auth = yes
+    
+    # Normalize usernames (remove whitespace, etc.)
+    normalise = yes
+}

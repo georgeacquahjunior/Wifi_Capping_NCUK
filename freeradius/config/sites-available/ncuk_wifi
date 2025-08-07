@@ -1,0 +1,171 @@
+#
+# NCUK WiFi Virtual Server Configuration
+# This virtual server handles WiFi authentication and accounting
+#
+
+server ncuk_wifi {
+    # Authentication port
+    listen {
+        type = auth
+        ipaddr = *
+        port = 1812
+        limit {
+            max_connections = 16
+            lifetime = 0
+            idle_timeout = 30
+        }
+    }
+
+    # Accounting port
+    listen {
+        type = acct
+        ipaddr = *
+        port = 1813
+        limit {
+            max_connections = 16
+            lifetime = 0
+            idle_timeout = 30
+        }
+    }
+
+    # Authorization section
+    authorize {
+        # Filter attributes
+        filter_username
+        
+        # Preprocess the request
+        preprocess
+        
+        # CHAP authentication
+        chap
+        
+        # MS-CHAP authentication
+        mschap
+        
+        # Digest authentication
+        digest
+        
+        # Check for suffix (realm)
+        suffix
+        
+        # Check EAP
+        eap {
+            ok = return
+        }
+        
+        # Check files (users file)
+        files
+        
+        # SQL database (if configured)
+        # sql
+        
+        # LDAP (if configured)
+        # ldap
+        
+        # Expiration checking
+        expiration
+        
+        # Login time restrictions
+        logintime
+        
+        # PAP authentication
+        pap
+    }
+
+    # Authentication section
+    authenticate {
+        # PAP authentication
+        Auth-Type PAP {
+            pap
+        }
+        
+        # CHAP authentication
+        Auth-Type CHAP {
+            chap
+        }
+        
+        # MS-CHAP authentication
+        Auth-Type MS-CHAP {
+            mschap
+        }
+        
+        # Digest authentication
+        digest
+        
+        # EAP authentication
+        eap
+    }
+
+    # Pre-accounting section
+    preacct {
+        # Preprocess accounting request
+        preprocess
+        
+        # Check for Acct-Status-Type
+        acct_unique
+        
+        # Suffix processing
+        suffix
+        
+        # Files for accounting
+        files
+    }
+
+    # Accounting section
+    accounting {
+        # Detail logging
+        detail
+        
+        # Unix system accounting
+        unix
+        
+        # RADIUS accounting
+        radutmp
+        
+        # Execute external scripts
+        exec
+        
+        # Attribute filtering
+        attr_filter.accounting_response
+    }
+
+    # Session section (for dynamic VLAN assignment)
+    session {
+        radutmp
+    }
+
+    # Post-authentication section
+    post-auth {
+        # Update session database
+        update {
+            reply:User-Name := &request:User-Name
+        }
+        
+        # Execute post-auth scripts
+        exec
+        
+        # Attribute filtering
+        attr_filter.access_accept
+        
+        # Log successful authentication
+        linelog
+        
+        # Handle authentication rejections
+        Post-Auth-Type REJECT {
+            attr_filter.access_reject
+            eap
+            remove_reply_message_if_eap
+        }
+    }
+
+    # Pre-proxy section (for proxying requests)
+    pre-proxy {
+        attr_filter.pre-proxy
+    }
+
+    # Post-proxy section
+    post-proxy {
+        attr_filter.post-proxy
+        eap
+    }
+}
