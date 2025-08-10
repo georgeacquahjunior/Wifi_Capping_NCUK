@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: wifi-capping-backend
+    runtime: python
+    buildCommand: "./.render/build.sh"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: FLASK_ENV
+        value: production
