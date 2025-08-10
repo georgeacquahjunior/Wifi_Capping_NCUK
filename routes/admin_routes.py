@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from models.admin_db import Admin, db
 from datetime import datetime
 
@@ -31,6 +31,23 @@ def create_admin():
     db.session.commit()
 
     return jsonify({'message': 'Admin created successfully'}), 201
+
+# --------------- LOGIN --------------------
+@admin_bp.route('/admins/login', methods=['POST'])
+def admin_login():
+    # Admin login with admin_id and password
+    data = request.get_json()
+    admin_id = data.get('admin_id')
+    password = data.get('password')
+
+    if not admin_id or not password:
+        return jsonify({'error': 'Admin ID and password are required'}), 400
+
+    admin = Admin.query.filter_by(admin_id=admin_id).first()
+    if not admin or not check_password_hash(admin.password_hash, password):
+        return jsonify({'error': 'Invalid admin ID or password'}), 401
+
+    return jsonify({'message': 'Login successful', 'admin_id': admin.admin_id}), 200
 
 # ---------------- READ ALL ----------------
 @admin_bp.route('/admins', methods=['GET'])
