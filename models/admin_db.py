@@ -1,6 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from .student_db import db
 
 class Admin(db.Model):
     __tablename__ = 'admins'
