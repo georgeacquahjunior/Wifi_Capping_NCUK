@@ -1,14 +1,12 @@
 from flask import Blueprint, request, jsonify
 from models.student_db import Student, db
+from werkzeug.security import check_password_hash 
 
 
 # Create a Blueprint for organizing student-related routes
 student_bp = Blueprint('student_bp', __name__)
 
-# ----------------------------
-# CREATE - Add a new student
-# Endpoint: POST /students
-# ----------------------------
+# -------------------- CREATE --------------------
 @student_bp.route('/students', methods=['POST'])
 def add_student():
     try:
@@ -46,42 +44,26 @@ def add_student():
         return jsonify({'error': str(e)}), 500
     
     
-# ----------------------------
-# LOGIN - Student Login
-# Endpoint: POST /students/login
-# ----------------------------
+# ------------------------- LOGIN ----------------------------
 @student_bp.route('/students/login', methods=['POST'])
 def login_student():
-    try:
-        data = request.get_json()
+    data = request.get_json()
+    student_id = data.get('student_id')
+    password = data.get('password')
 
-        student_id = data.get('student_id')
-        password = data.get('password')
+    if not student_id or not password:
+        return jsonify({'error': 'Student ID and password are required'}), 400
 
-        if not student_id or not password:
-            return jsonify({'error': 'Missing student_id or password'}), 400
+    student = Student.query.filter_by(student_id=student_id).first()
+    if not student or not check_password_hash(student.password_hash, password):
+        return jsonify({'error': 'Invalid Student ID or password'}), 401
 
-        student = Student.query.filter_by(student_id=student_id).first()
-
-        if student and student.check_password(password):
-            return jsonify({'message': 'Login successful', 'student': {
-                'id': student.id,
-                'student_id': student.student_id,
-                'first_name': student.first_name,
-                'last_name': student.last_name
-            }}), 200
-        else:
-            return jsonify({'error': 'Invalid student ID or password'}), 401
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    return jsonify({'message': 'Login successful', 'student_id': student.student_id}), 200
 
 
 
-# ----------------------------
-# READ - Get all students
-# Endpoint: GET /students
-# ----------------------------
+
+# -------------------------- READ ----------------------------
 @student_bp.route('/students', methods=['GET'])
 def get_students():
     # Fetch all student records
@@ -98,10 +80,7 @@ def get_students():
         } for s in students
     ]), 200
 
-# ----------------------------
-# READ - Get one student by database ID
-# Endpoint: GET /students/<int:student_id>
-# ----------------------------
+# -------------------------- READ ----------------------------
 @student_bp.route('/students/<int:student_id>', methods=['GET'])
 def get_student(student_id):
     # Find student by primary key ID
@@ -118,10 +97,7 @@ def get_student(student_id):
         'created_at': student.created_at
     }), 200
 
-# ----------------------------
-# UPDATE - Update student info
-# Endpoint: PUT /students/<int:student_id>
-# ----------------------------
+# ------------------------ UPDATE ----------------------------
 @student_bp.route('/students/<int:student_id>', methods=['PUT'])
 def update_student(student_id):
     # Get the student by ID
@@ -144,10 +120,7 @@ def update_student(student_id):
     db.session.commit()
     return jsonify({'message': 'Student updated successfully'}), 200
 
-# ----------------------------
-# DELETE - Delete a student
-# Endpoint: DELETE /students/<int:student_id>
-# ----------------------------
+# ---------------------- DELETE ----------------------------
 @student_bp.route('/students/<int:student_id>', methods=['DELETE'])
 def delete_student(student_id):
     # Get the student by ID
