@@ -1,0 +1,39 @@
+# WiFi Network Monitoring Configuration
+monitoring:
+  # Suspicious activity thresholds
+  max_devices_per_hour: 50
+  max_bandwidth_mbps: 1000
+  suspicious_ports: [22, 23, 3389, 5900, 1433, 3306]
+  scan_interval_seconds: 60
+  
+  # Traffic analysis
+  unusual_traffic_threshold: 80  # percentage above normal
+  connection_timeout_threshold: 30  # seconds
+  
+security:
+  # Security update settings
+  auto_update: true
+  update_check_interval_hours: 24
+  security_sources:
+    - "https://api.github.com/repos/advisories"
+    - "https://nvd.nist.gov/feeds/json/cve/1.1/"
+  
+  # Alert settings
+  alert_email: "admin@ncuk.ac.uk"
+  alert_threshold: "medium"  # low, medium, high, critical
+  
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: "/var/log/wifi_monitor.log"
+  max_size_mb: 100
+  backup_count: 5
+  
+network:
+  # Network interface to monitor
+  interface: "wlan0"
+  # WiFi network SSID to monitor
+  ssid: "NCUK_WIFI"
+  # Allowed device MAC address patterns (for whitelisting)
+  trusted_mac_patterns:
+    - "00:1B:44:*"  # University devices
+    - "AC:DE:48:*"  # Staff devices
