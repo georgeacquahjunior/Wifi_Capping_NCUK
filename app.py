@@ -1,16 +1,27 @@
 # this is a Flask application that uses SQLAlchemy for database management and Flask-CORS for handling CORS requests.
 # It initializes the app, configures the database, and registers a blueprint for authentication routes.
 
+import os
 from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-from config import Config
+from config import config, DatabaseConfig
 
 db = SQLAlchemy()
 
-def create_app():
+def create_app(config_name=None):
+    """Application factory pattern with configurable environment"""
+    if config_name is None:
+        config_name = os.environ.get('FLASK_ENV', 'development')
+    
     app = Flask(__name__)
-    app.config.from_object(Config)
+    
+    # Use the new configuration system
+    app.config.from_object(config.get(config_name, config['default']))
+    
+    # Set database URI dynamically to ensure environment variables are read at runtime
+    app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfig.get_database_uri(config_name)
+    
     CORS(app)
 
     db.init_app(app)
@@ -30,7 +41,6 @@ def create_app():
     # register admin routes
     from routes.admin import admin_bp
     app.register_blueprint(admin_bp, url_prefix='/admin')  # /admin/usage becomes /admin/usage
-
 
     return app
 

@@ -10,7 +10,8 @@ with app.app_context():
     db.create_all()
 
     # Add sample student (only if not exists)
-    if not Student.query.get("stu001"):
+    existing_student = db.session.get(Student, "stu001")
+    if not existing_student:
         hashed = bcrypt.hashpw(b"123456", bcrypt.gensalt()).decode('utf-8')
         student = Student(id="stu001", name="George", password=hashed)
         db.session.add(student)
