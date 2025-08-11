@@ -1,2 +1,14 @@
 __pycache__/
 index.html
+
+# Database files
+*.db
+!instance/.gitkeep
+
+# Test and demo files
+test_config.py
+demo_config.py
+
+# Environment files
+.env
+.env.*
