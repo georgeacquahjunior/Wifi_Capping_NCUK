@@ -16,14 +16,12 @@
     <!-- Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' 'nonce-{SCRIPT_NONCE}';
+        script-src 'self' 'unsafe-inline';
         style-src 'self' 'unsafe-inline';
         img-src 'self' data: https:;
         font-src 'self';
         connect-src 'self';
-        frame-ancestors 'none';
         object-src 'none';
-        upgrade-insecure-requests
     ">
     
     <title>WiFi Capping NCUK - Network Management Dashboard</title>
@@ -55,7 +53,7 @@
     </div>
 
     <!-- Application will be rendered here by JavaScript -->
-    <script nonce="{SCRIPT_NONCE}">
+    <script>
         // Basic app initialization and demo functionality
         document.addEventListener('DOMContentLoaded', function() {
             // Replace loading screen with the main application
