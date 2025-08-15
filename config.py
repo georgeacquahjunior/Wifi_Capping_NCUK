@@ -1,4 +1,4 @@
-# # backend/config.py
+# backend/config.py
 
 # class Config:
 #     SQLALCHEMY_DATABASE_URI = "postgresql://postgres:brainstorm@localhost:5432/wifi_capping"
