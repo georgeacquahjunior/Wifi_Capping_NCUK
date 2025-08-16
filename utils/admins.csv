@@ -1,0 +1,11 @@
+id,admin_id,first_name,last_name,password_hash,created_at
+1,ADM001,Michael,Johnson,pass123,2025-08-01 09:00:00
+2,ADM002,Patricia,Brown,pass123,2025-08-01 09:05:00
+3,ADM003,George,Adams,pass123,2025-08-01 09:10:00
+4,ADM004,Sandra,Clark,pass123,2025-08-01 09:15:00
+5,ADM005,Daniel,White,pass123,2025-08-01 09:20:00
+6,ADM006,Lucy,Hall,pass123,2025-08-01 09:25:00
+7,ADM007,Peter,Allen,pass123,2025-08-01 09:30:00
+8,ADM008,Grace,Young,pass123,2025-08-01 09:35:00
+9,ADM009,Samuel,King,pass123,2025-08-01 09:40:00
+10,ADM010,Rebecca,Scott,pass123,2025-08-01 09:45:00

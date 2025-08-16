@@ -1,0 +1,11 @@
+notification_id,student_id,message,status,created_at
+1,STU001,You have used 25% of your data,unread,2025-08-01 12:00:00
+2,STU002,You have used 50% of your data,unread,2025-08-01 12:05:00
+3,STU003,You have used 75% of your data,unread,2025-08-01 12:10:00
+4,STU004,You have reached your data limit,unread,2025-08-01 12:15:00
+5,STU005,You have used 40% of your data,unread,2025-08-01 12:20:00
+6,STU006,You have used 90% of your data,unread,2025-08-01 12:25:00
+7,STU007,You have used 95% of your data,unread,2025-08-01 12:30:00
+8,STU008,You have used 20% of your data,unread,2025-08-01 12:35:00
+9,STU009,You have used 55% of your data,unread,2025-08-01 12:40:00
+10,STU010,You have used 70% of your data,unread,2025-08-01 12:45:00

@@ -1,4 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
 from .student_db import db
 
 class Admin(db.Model):
