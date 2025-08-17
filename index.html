@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Capping Admin Dashboard - NCUK</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="header-title">WiFi Capping Dashboard</h1>
+            <div class="header-actions">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Admin</span>
+                </div>
+                <button class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-wifi"></i>
+            <span>NCUK WiFi</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="menu-item active">
+                <a href="#dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#users">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#monitoring">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Network Monitor</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#settings">
+                    <i class="fas fa-cogs"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#reports">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <h2 class="section-title">Dashboard Overview</h2>
+            
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Users</h3>
+                        <p class="stat-number">1,247</p>
+                        <span class="stat-change positive">+5.2%</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Data Usage</h3>
+                        <p class="stat-number">2.4 TB</p>
+                        <span class="stat-change neutral">Today</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Active Connections</h3>
+                        <p class="stat-number">892</p>
+                        <span class="stat-change positive">Online</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Alerts</h3>
+                        <p class="stat-number">3</p>
+                        <span class="stat-change negative">Warnings</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts and Recent Activity -->
+            <div class="dashboard-grid">
+                <div class="chart-container">
+                    <h3>Bandwidth Usage (24h)</h3>
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-area"></i>
+                        <p>Interactive bandwidth chart would be displayed here</p>
+                    </div>
+                </div>
+                
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <i class="fas fa-user-plus"></i>
+                            <div class="activity-details">
+                                <p>New user registered: john.doe@ncuk.ac.uk</p>
+                                <span class="activity-time">5 minutes ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div class="activity-details">
+                                <p>Data limit exceeded: Building A - Room 204</p>
+                                <span class="activity-time">15 minutes ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fas fa-cog"></i>
+                            <div class="activity-details">
+                                <p>Bandwidth limit updated for student group</p>
+                                <span class="activity-time">1 hour ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- User Management Section -->
+        <section id="users" class="content-section">
+            <h2 class="section-title">User Management</h2>
+            
+            <div class="section-controls">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search users...">
+                </div>
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Add User
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Data Limit</th>
+                            <th>Usage</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar">JD</div>
+                                    <span>John Doe</span>
+                                </div>
+                            </td>
+                            <td>john.doe@ncuk.ac.uk</td>
+                            <td>5 GB</td>
+                            <td>
+                                <div class="usage-bar">
+                                    <div class="usage-fill" style="width: 75%"></div>
+                                </div>
+                                <span>3.75 GB</span>
+                            </td>
+                            <td><span class="status-badge active">Active</span></td>
+                            <td>
+                                <button class="btn-icon" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar">JS</div>
+                                    <span>Jane Smith</span>
+                                </div>
+                            </td>
+                            <td>jane.smith@ncuk.ac.uk</td>
+                            <td>10 GB</td>
+                            <td>
+                                <div class="usage-bar">
+                                    <div class="usage-fill" style="width: 45%"></div>
+                                </div>
+                                <span>4.5 GB</span>
+                            </td>
+                            <td><span class="status-badge active">Active</span></td>
+                            <td>
+                                <button class="btn-icon" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Network Monitoring Section -->
+        <section id="monitoring" class="content-section">
+            <h2 class="section-title">Network Monitoring</h2>
+            
+            <div class="monitoring-grid">
+                <div class="monitor-card">
+                    <h3>Current Bandwidth</h3>
+                    <div class="bandwidth-meter">
+                        <div class="bandwidth-fill" style="width: 65%"></div>
+                    </div>
+                    <p>650 Mbps / 1 Gbps</p>
+                </div>
+                
+                <div class="monitor-card">
+                    <h3>Network Health</h3>
+                    <div class="health-indicator good">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Excellent</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="content-section">
+            <h2 class="section-title">System Settings</h2>
+            
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h3>Default Data Limits</h3>
+                    <form class="settings-form">
+                        <div class="form-group">
+                            <label>Student Limit (GB)</label>
+                            <input type="number" value="5" min="1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Staff Limit (GB)</label>
+                            <input type="number" value="20" min="1" max="100">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+                
+                <div class="settings-card">
+                    <h3>Network Configuration</h3>
+                    <form class="settings-form">
+                        <div class="form-group">
+                            <label>Max Bandwidth (Mbps)</label>
+                            <input type="number" value="1000" min="100" max="10000">
+                        </div>
+                        <div class="form-group">
+                            <label>Alert Threshold (%)</label>
+                            <input type="number" value="80" min="50" max="95">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Settings</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="content-section">
+            <h2 class="section-title">Usage Reports</h2>
+            
+            <div class="reports-controls">
+                <select class="form-select">
+                    <option>Last 7 days</option>
+                    <option>Last 30 days</option>
+                    <option>Last 3 months</option>
+                </select>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-download"></i>
+                    Export Report
+                </button>
+            </div>
+            
+            <div class="report-summary">
+                <h3>Summary</h3>
+                <p>Total data consumed: 45.2 TB</p>
+                <p>Average daily usage: 6.5 TB</p>
+                <p>Peak usage time: 2:00 PM - 4:00 PM</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
