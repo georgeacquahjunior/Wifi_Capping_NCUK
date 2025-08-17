@@ -23,7 +23,15 @@ A comprehensive WiFi usage monitoring and capping system with admin dashboard, u
 - Real-time data updates
 - Historical usage tracking
 
-## Installation
+## Quick Start
+
+### Automated Setup
+```bash
+chmod +x run.sh
+./run.sh
+```
+
+### Manual Installation
 
 1. Clone the repository:
 ```bash
@@ -31,17 +39,23 @@ git clone https://github.com/georgeacquahjunior/Wifi_Capping_NCUK.git
 cd Wifi_Capping_NCUK
 ```
 
-2. Install dependencies:
+2. Create virtual environment:
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run the application:
+4. Run the application:
 ```bash
 python app.py
 ```
 
-4. Access the application at `http://localhost:5000`
+5. Access the application at `http://localhost:5001`
 
 ## Default Login Credentials
 
