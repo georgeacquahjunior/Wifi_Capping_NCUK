@@ -55,6 +55,26 @@ The dashboard is fully responsive and optimized for:
 - **Vanilla JavaScript**: Interactive functionality without dependencies
 - **Font Awesome**: Icon library for consistent iconography
 
+## Screenshots
+
+### Desktop View
+![Desktop Dashboard](screenshots/dashboard-desktop.png)
+
+### Mobile View  
+![Mobile Dashboard](screenshots/dashboard-mobile.png)
+
+### Mobile Menu Open
+![Mobile Menu](screenshots/dashboard-mobile-menu-open.png)
+
+### User Management Section
+![User Management](screenshots/dashboard-user-management.png)
+
+### Settings Page
+![Settings](screenshots/dashboard-settings.png)
+
+### Tablet View
+![Tablet View](screenshots/dashboard-tablet.png)
+
 ## Usage
 
 1. Open `index.html` in a web browser
