@@ -5,7 +5,7 @@
 #     SQLALCHEMY_TRACK_MODIFICATIONS = False
 #     SECRET_KEY = "your-secret-key"
 
-# import os
+import os
 
 class Config:
     # Use DATABASE_URL from environment (Render), fallback to local DB if not set
