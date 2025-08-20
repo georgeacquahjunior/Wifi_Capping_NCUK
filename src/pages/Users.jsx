@@ -1,12 +1,6 @@
-//import React, { useState, useEffect } from 'react';
-//import '../styles/Users.css';
-//import Navbar from '../components/Navbar';
-//import ResetButton from '../components/ResetButton';
-
-import studentsData from '../students.json';
 import React, { useState, useEffect } from "react";
+import studentsData from '../students.json';
 import "../styles/Users.css";
-import Navbar from '../components/Navbar';
 import ResetButton from '../components/ResetButton';
 import { useNavigate } from 'react-router-dom';
 
@@ -59,7 +53,6 @@ function Users() {
 
   return (
     <>
-      <Navbar />
       <div className="users-container">
         <h2>Manage Students</h2>
 
@@ -126,12 +119,12 @@ function Users() {
         </table>
 
         <div className="admin-actions">
-            <button onClick={() => navigate('/add-student')}>
-              Add Student
-            </button>
-
             <button onClick={() => navigate('/add-admin')}>
               Add Admin
+            </button>
+
+            <button onClick={() => navigate('/add-student')}>
+              Add Student
             </button>
         </div>
         

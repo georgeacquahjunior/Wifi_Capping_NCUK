@@ -1,71 +1,34 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import AdminDashboard from "./pages/AdminDashboard";
-import AddStudent from "./pages/AddStudent";
-import AddAdmin from "./pages/AddAdmin";
-import Users from "./pages/Users";
-import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
-import ProtectedRoute from "./routes/ProtectedRoute";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from './pages/Login';
+import AdminDashboard from './pages/AdminDashboard';
+import AddStudent from './pages/AddStudent';
+import AddAdmin from './pages/AddAdmin';
+import Reports from './pages/Reports';
+import Settings from './pages/Settings';
+import Users from './pages/Users';
+import ProtectedRoute from './routes/ProtectedRoute';
+import Layout from './components/Layout';
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
         {/* Public Route */}
         <Route path="/" element={<Login />} />
 
-        {/* Protected Admin Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/add-student"
-          element={
-            <ProtectedRoute>
-              <AddStudent />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/add-admin"
-          element={
-            <ProtectedRoute>
-              <AddAdmin />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/users"
-          element={
-            <ProtectedRoute>
-              <Users />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/reports"
-          element={
-            <ProtectedRoute>
-              <Reports />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <Settings />
-            </ProtectedRoute>
-          }
-        />
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={<AdminDashboard />} />
+            <Route path="/add-student" element={<AddStudent />} />
+            <Route path="/add-admin" element={<AddAdmin />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/users" element={<Users />} />
+          </Route>
+        </Route>
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 

@@ -3,17 +3,36 @@ import { useNavigate } from "react-router-dom";
 import '../styles/Login.css';
 
 function Login() {
-  const [id, setId] = useState("");
+  const [admin_id, setAdmin_id] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (id === "admin" && password === "NCUK@accra") {
-      localStorage.setItem("isAuthenticated", "true");
-      navigate("/dashboard");
-    } else {
-      alert("Invalid credentials");
+    setError("");
+
+    try {
+      const response = await fetch("https://wifi-capping-ncuk-1.onrender.com/admins/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ admin_id, password }) 
+      });
+
+      const data = await response.json();
+      console.log("Backend response:", data);
+
+      if (response.ok) {
+        // save token
+        localStorage.setItem("token", data.token);
+        navigate("/dashboard");
+      } else {
+        setError(data.message || data.error || "Invalid credentials");
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
     }
   };
 
@@ -24,8 +43,8 @@ function Login() {
         <input
           type="text"
           placeholder="Admin ID"
-          value={id}
-          onChange={(e) => setId(e.target.value)}
+          value={admin_id}
+          onChange={(e) => setAdmin_id(e.target.value)}
           required
         />
         <input
@@ -35,10 +54,14 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button class="submit-button" type="submit">Login</button>
+        <button className="submit-button" type="submit">
+          Login
+        </button>
       </form>
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 }
 
 export default Login;
+

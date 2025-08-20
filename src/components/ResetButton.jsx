@@ -9,5 +9,5 @@ export default function ResetButton({ studentId, students, setStudents }) {
     alert(`Reset usage for ${studentId}`);
   };
 
-  return <button onClick={handleReset}>Reset</button>;
+  return <button className="reset-button" onClick={handleReset}>Reset</button>;
 }

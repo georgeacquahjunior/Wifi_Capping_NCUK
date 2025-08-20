@@ -1,9 +1,7 @@
-
+import studentsData from '../students.json';
 import React, { useEffect, useState } from 'react';
 import '../styles/Reports.css';
-import studentsData from '../students.json';
 import { saveAs } from 'file-saver';
-import Navbar from '../components/Navbar';
 
 function Reports() {
   const [students, setStudents] = useState([]);
@@ -26,33 +24,32 @@ function Reports() {
 
   return (
     <>
-      <Navbar />
         <div className="reports-container">
           <h2>Usage Reports</h2>
           <input
             type="text"
             placeholder="Search by student ID"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="report-search"
-        />
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="report-search"
+          />
 
-        <table>
-          <thead>
-            <tr>
-              <th>Student ID</th>
-              <th>Usage (GB)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((student) => (
-              <tr key={student.id}>
-                <td>{student.id}</td>
-                <td>{student.usage}</td>
+          <table>
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Usage (GB)</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtered.map((student) => (
+                <tr key={student.id}>
+                  <td>{student.id}</td>
+                  <td>{student.usage}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
         <button onClick={downloadCSV} className="download-button">Download CSV</button>
       </div>

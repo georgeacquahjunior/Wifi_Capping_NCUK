@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import '../styles/AddStudent.css'; 
-import Navbar from "../components/Navbar";
 
 const AddStudent = () => {
   const [formData, setFormData] = useState({
@@ -36,7 +35,6 @@ const AddStudent = () => {
 
   return (
     <>
-      <Navbar />
       <div className="add-student-container">
         <h2>Add New Student</h2>
 

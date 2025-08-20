@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
 import '../styles/Settings.css';
 
 const Settings = () => {
@@ -26,7 +25,6 @@ const Settings = () => {
 
   return (
     <>
-      <Navbar />
       <div className="settings-container">
         <h2>System Settings</h2>
 

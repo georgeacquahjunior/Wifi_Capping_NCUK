@@ -2,44 +2,64 @@
   max-width: 900px;
   margin: 40px auto;
   padding: 20px;
-  background: #fff;
+  background: #ffffff;
   border-radius: 14px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   font-family: "Segoe UI", sans-serif;
 }
 
 .reports-container h2 {
   text-align: center;
-  margin-bottom: 20px;
-  font-size: 26px;
-  color: #333;
+  margin-bottom: 25px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #222;
 }
 
 .report-search {
   width: 100%;
-  padding: 10px 12px;
+  padding: 10px 14px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.report-search:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   font-size: 15px;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 thead th {
-  background-color: #f2f2f2;
+  background-color: #f8f9fa;
   text-align: left;
   padding: 12px;
   color: #444;
+  font-weight: 600;
 }
 
 tbody td {
   padding: 12px;
   border-top: 1px solid #eee;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #fdfdfd;
+}
+
+tbody tr:hover {
+  background-color: #f1f9ff;
+  transition: background 0.2s ease-in-out;
 }
 
 .download-btn {
@@ -51,9 +71,51 @@ tbody td {
   font-weight: 500;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.25s ease, transform 0.2s ease;
 }
 
 .download-btn:hover {
   background-color: #0056b3;
+  transform: scale(1.03);
+}
+
+
+@media (max-width: 768px) {
+  .reports-container {
+    padding: 15px;
+    margin: 20px;
+  }
+
+  table, thead, tbody, th, td, tr {
+    display: block;
+    width: 100%;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    margin-bottom: 15px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 10px;
+  }
+
+  tbody td {
+    text-align: right;
+    padding: 8px;
+    border: none;
+    position: relative;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    text-align: left;
+    font-weight: bold;
+    color: #555;
+  }
 }
