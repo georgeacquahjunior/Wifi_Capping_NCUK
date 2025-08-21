@@ -1,6 +1,6 @@
 .reports-container {
   max-width: 900px;
-  margin: 40px auto;
+  margin: 100px auto 40px auto;
   padding: 20px;
   background: #ffffff;
   border-radius: 14px;
@@ -17,7 +17,7 @@
 }
 
 .report-search {
-  width: 100%;
+  width: 90%;
   padding: 10px 14px;
   margin-bottom: 20px;
   border: 1px solid #ccc;

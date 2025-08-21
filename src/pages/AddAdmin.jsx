@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../styles/AddAdmin.css"; 
 const AddAdmin = () => {
   const [formData, setFormData] = useState({
-    adminId: "",
+    admin_id: "",
     firstName: "",
     lastName: "",
     password: "",
@@ -23,9 +23,9 @@ const AddAdmin = () => {
     // TODO: Replace this with an actual API call
     console.log("New admin submitted:", formData);
 
-    setMessage("✅ Admin added successfully!");
+    setMessage("Admin added successfully!");
     setFormData({
-      adminId: "",
+      admin_id: "",
       firstName: "",
       lastName: "",
       password: "",
@@ -33,16 +33,16 @@ const AddAdmin = () => {
   };
 
   return (
-    <div className="page-container">
+    <>
       <div className="add-admin-container">
         <h2>Add New Admin</h2>
 
         <form onSubmit={handleSubmit} className="add-admin-form">
           <input
             type="text"
-            name="adminId"
+            name="admin_id"
             placeholder="Admin ID"
-            value={formData.adminId}
+            value={formData.admin_id}
             onChange={handleChange}
             required
           />
@@ -76,7 +76,7 @@ const AddAdmin = () => {
 
         {message && <p className="success-message">{message}</p>}
       </div>
-    </div>
+    </>
 
   );
 };
