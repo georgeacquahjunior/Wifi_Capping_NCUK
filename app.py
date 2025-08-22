@@ -3,10 +3,11 @@
 from flask import Flask
 from flask_cors import CORS
 from config import Config
-from models.student_db import db, Student
-from models.admin_db import db, Admin
+from models.student_db import db
+from models.merged_usage_log_db import db
 from routes.students_routes import student_bp
 from routes.admin_routes import admin_bp
+from routes.usage_logs_routes import dashboard_bp
 import os
 
 app = Flask(__name__)
@@ -16,6 +17,7 @@ db.init_app(app)
 
 app.register_blueprint(student_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(dashboard_bp)
 
 
 if __name__ == "__main__":
