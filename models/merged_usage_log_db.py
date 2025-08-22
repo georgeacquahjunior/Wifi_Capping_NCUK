@@ -1,4 +1,4 @@
-from .merged_usage_log_db import db
+from .student_db import db
 
 class MergedUsageLogs(db.Model):
     __tablename__ = 'merged_usage_logs'
@@ -12,6 +12,6 @@ class MergedUsageLogs(db.Model):
     capped_status = db.Column(db.Boolean, default=False)
 
     # These columns are computed in the database, not in SQLAlchemy, so we read them only.
-    data_used = db.Column(db.Numeric(15, 6))        # GB used (computed in PostgreSQL)
+    data_used = db.Column(db.Numeric(10, 3))        # GB used (computed in PostgreSQL)
     data_left = db.Column(db.Numeric(10, 2))        # GB left (computed in PostgreSQL)
     percentage_used = db.Column(db.Numeric(5, 2))   # % used (computed in PostgreSQL)
