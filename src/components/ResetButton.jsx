@@ -1,4 +1,3 @@
-import React from 'react';
 import '../styles/ResetButton.css';
 export default function ResetButton({ studentId, students, setStudents }) {
   const handleReset = () => {
