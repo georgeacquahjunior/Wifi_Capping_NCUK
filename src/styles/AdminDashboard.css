@@ -1,123 +1,144 @@
+/* ===== Dashboard Layout ===== */
 .dashboard-container {
-  max-width: 1000px;
-  margin: 100px auto 40px auto; 
-  padding: 20px;
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  margin-top: 50px;
 }
 
-h1 {
+.dashboard-container h1 {
   text-align: center;
-  margin-bottom: 30px;
-  font-size: 1.8rem;
-  color: #222;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
 }
 
+/* ===== Search Bar ===== */
 .search-bar {
-  width: 90%;
-  max-width: 600px;
-  padding: 10px 12px;
-  margin: 0 auto 20px auto;
-  border: 1px solid #ccc;
-  border-radius: 8px;
   display: block;
+  margin: 0 auto 1.5rem auto;
+  padding: 0.7rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 300px;
+  max-width: 90%;
   font-size: 1rem;
 }
 
-.alert {
-  background-color: #dc3545;
-  color: white;
-  padding: 15px;
-  border-radius: 10px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
+/* ===== Table Styles ===== */
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 thead {
-  background-color: #f8f9fa;
+  background: #007bff;
+  color: white;
 }
 
 th, td {
-  padding: 12px;
-  border: 1px solid #ddd;
-  text-align: center;
+  padding: 0.9rem;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.9rem;
+  text-align: left;
 }
 
-.ok {
+tbody tr:hover {
+  background: #f1f1f1;
+}
+
+/* ===== Loading & Error Messages ===== */
+.loading {
+  text-align: center;
+  font-size: 1rem;
+  color: #007bff;
+  margin-top: 1rem;
+}
+
+.error {
+  text-align: center;
+  font-size: 1rem;
+  color: #dc3545;
+  margin-top: 1rem;
+}
+
+/* ===== Status Badges ===== */
+.status {
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status.active {
   background: #28a745;
   color: white;
-  padding: 4px 8px;
-  border-radius: 5px;
 }
 
-.warning {
-  background-color: rgb(188, 198, 4);
+.status.inactive {
+  background: #6c757d;
   color: white;
-  padding: 4px 8px;
-  border-radius: 5px;
 }
 
-.exceeded {
-  background-color: #dc3545;
+.status.capped {
+  background: #dc3545;
   color: white;
-  padding: 4px 8px;
-  border-radius: 5px;
 }
 
-.exceeded-row {
-  background-color: #ffe5e5;
+.status.warning {
+  background: #ffc107;
+  color: black;
 }
 
-button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-button:hover {
-  background: #0056b3;
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-  .dashboard-container {
-    padding: 15px;
-    margin: 80px 10px 20px 10px;
-  }
-
-  .search-bar {
-    max-width: 100%;
-  }
-
-  table,
-  thead,
-  tbody,
-  th,
-  td,
-  tr {
+/* ===== Responsive Table Design ===== */
+@media screen and (max-width: 1024px) {
+  th, td {
+    padding: 0.7rem;
     font-size: 0.85rem;
   }
 }
 
-@media (max-width: 480px) {
-  th, td {
-    padding: 8px;
+@media screen and (max-width: 768px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+    width: 100%;
   }
 
-  h1 {
-    font-size: 1.4rem;
+  thead {
+    display: none; /* Hide header on small screens */
+  }
+
+  tbody tr {
+    margin-bottom: 1rem;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  tbody td {
+    border: none;
+    padding: 0.5rem 0;
+    position: relative;
+    font-size: 0.9rem;
+    text-align: right;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+    font-size: 0.75rem;
   }
 }
