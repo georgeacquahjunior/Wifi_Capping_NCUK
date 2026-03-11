@@ -1,36 +1,52 @@
-# WiFi Capping NCUK - Admin Dashboard
+# WiFi Capping NCUK - FreeRADIUS-NAS-Backend Validation System
 
-A React-based admin dashboard for managing WiFi bandwidth capping in educational institutions. This application provides secure admin authentication with protected routes for system management.
+A comprehensive WiFi access control and bandwidth capping system for NCUK (Northern Consortium of UK Universities) that integrates FreeRADIUS authentication with a custom NAS (Network Access Server) backend for network administrator validation.
+
+## Overview
+
+This system provides:
+- **FreeRADIUS Integration**: Complete RADIUS authentication and accounting
+- **NAS Backend**: RESTful API for RADIUS operations
+- **Data Capping**: Per-user bandwidth monitoring and enforcement
+- **Admin Validation**: Network administrator tools for flow validation
+- **Session Management**: Real-time session tracking and control
+
+## Architecture
+
+```
+[WiFi Controllers] → [FreeRADIUS] → [NAS Backend] → [MySQL Database]
+                                          ↓
+                              [Admin Validation Tools]
+```
 
 ## Features
 
-### 🔐 Authentication & Security
-- **Admin Login Interface**: Secure login form with validation
-- **Protected Routes**: Route-based access control using `ProtectedRoute` component
-- **Session Persistence**: Maintains login state across browser sessions
-- **Role-based Access**: Supports admin role verification
+### Core Functionality
+- ✅ RADIUS authentication with user credentials
+- ✅ Accounting session management (start/update/stop)
+- ✅ Data usage tracking and bandwidth capping
+- ✅ Multiple NAS device support
+- ✅ Real-time session monitoring
 
-### 🎛️ Admin Dashboard
-- **System Status Monitoring**: Real-time WiFi capping system status
-- **User Management**: View connected users and active connections
-- **Data Usage Tracking**: Monitor daily bandwidth consumption
-- **Bandwidth Control**: Current bandwidth limit display
-- **Quick Actions**: Easy access to system management functions
-- **Activity Logs**: Recent system activity and events
+### Network Administrator Tools
+- ✅ Flow validation testing
+- ✅ Database connectivity verification
+- ✅ API health monitoring
+- ✅ Session management interface
+- ✅ User data usage reports
 
-### 💻 Technical Features
-- **Responsive Design**: Mobile-friendly interface
-- **TypeScript**: Full type safety and better development experience
-- **React Router**: Client-side routing with protection
-- **Context API**: Centralized authentication state management
-- **Modern React**: Hooks and functional components
-- **Testing**: Comprehensive test suite with Jest and React Testing Library
+### Security Features
+- ✅ NAS device authentication
+- ✅ Session isolation
+- ✅ Admin audit logging
+- ✅ Encrypted communications support
 
-## Getting Started
+## Quick Start
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- npm or yarn
+- Python 3.8+
+- MySQL/MariaDB 5.7+
+- FreeRADIUS 3.0+ (optional for testing)
 
 ### Installation
 
@@ -40,158 +56,249 @@ A React-based admin dashboard for managing WiFi bandwidth capping in educational
    cd Wifi_Capping_NCUK
    ```
 
-2. **Install dependencies**
+2. **Run the setup script**
    ```bash
-   npm install
+   # For full system installation (requires root)
+   sudo ./scripts/setup.sh
+   
+   # For development setup (user mode)
+   ./scripts/setup.sh
    ```
 
-3. **Start the development server**
+3. **Configure environment**
    ```bash
-   npm start
+   cp .env.example .env
+   # Edit .env with your configuration
+   nano .env
    ```
 
-4. **Open your browser**
-   Navigate to `http://localhost:3000` to access the admin login interface.
+4. **Set up database**
+   ```bash
+   mysql -u root -p < database/schema.sql
+   ```
 
-### Demo Credentials
-For testing purposes, use these credentials:
-- **Username**: `admin`
-- **Password**: `admin123`
+5. **Start the backend**
+   ```bash
+   ./scripts/start_backend.sh
+   ```
 
-## Available Scripts
+6. **Validate the installation**
+   ```bash
+   ./scripts/admin_validate.sh --report
+   ```
 
-- **`npm start`** - Runs the app in development mode
-- **`npm test`** - Launches the test runner
-- **`npm run build`** - Builds the app for production
-- **`npm run eject`** - Ejects from Create React App (one-way operation)
+## Configuration
 
-## Project Structure
+### Environment Variables (.env)
 
-```
-src/
-├── components/
-│   ├── ProtectedRoute.tsx      # Route protection component
-│   └── ProtectedRoute.test.tsx # Tests for protected routes
-├── contexts/
-│   └── AuthContext.tsx         # Authentication context and logic
-├── pages/
-│   ├── AdminLogin.tsx          # Admin login page
-│   ├── AdminLogin.css          # Login page styles
-│   ├── AdminLogin.test.tsx     # Login page tests
-│   ├── AdminDashboard.tsx      # Main admin dashboard
-│   └── AdminDashboard.css      # Dashboard styles
-├── types/
-│   └── auth.ts                 # TypeScript type definitions
-├── App.tsx                     # Main app component with routing
-├── App.css                     # Global app styles
-├── index.tsx                   # App entry point
-└── index.css                   # Global styles
-```
+```bash
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=wifi_capping
+DB_USER=radius_user
+DB_PASSWORD=radius_password
 
-## Authentication Flow
+# FreeRADIUS Configuration
+RADIUS_SECRET=testing123
+RADIUS_HOST=localhost
+RADIUS_AUTH_PORT=1812
+RADIUS_ACCT_PORT=1813
 
-1. **Unauthenticated Access**: Users are redirected to `/login` when accessing protected routes
-2. **Login Process**: Users enter credentials on the admin login page
-3. **Validation**: Credentials are validated (currently demo credentials)
-4. **Session Creation**: Successful login creates a session stored in localStorage
-5. **Protected Access**: Authenticated users can access admin dashboard
-6. **Logout**: Users can logout, clearing the session and redirecting to login
+# NAS Configuration
+NAS_IP=192.168.1.1
+NAS_SECRET=nas_secret_key
+NAS_IDENTIFIER=wifi_controller
 
-## Component Details
-
-### ProtectedRoute Component
-- Checks authentication status before rendering protected content
-- Redirects unauthenticated users to login page
-- Supports role-based access control
-- Shows loading state during authentication checks
-- Displays access denied for insufficient permissions
-
-### AuthContext
-- Manages global authentication state
-- Provides login/logout functionality
-- Handles session persistence
-- Uses React useReducer for state management
-- Simulates API authentication (ready for backend integration)
-
-### Admin Dashboard
-- Displays system status and metrics
-- Shows connected users and data usage
-- Provides quick action buttons for system management
-- Displays recent activity log
-- Responsive grid layout
-
-## Customization
-
-### Adding New Protected Routes
-```typescript
-<Route
-  path="/new-admin-page"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <NewAdminPage />
-    </ProtectedRoute>
-  }
-/>
+# Admin Configuration
+ADMIN_PORT=5000
+ADMIN_SECRET_KEY=admin_secret_key_change_me
 ```
 
-### Integrating with Backend
-Replace the demo authentication in `AuthContext.tsx` with actual API calls:
+### FreeRADIUS Configuration
 
-```typescript
-const login = async (username: string, password: string): Promise<boolean> => {
-  try {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
-    
-    if (response.ok) {
-      const user = await response.json();
-      localStorage.setItem('auth_user', JSON.stringify(user));
-      dispatch({ type: 'LOGIN_SUCCESS', payload: user });
-      return true;
-    }
-    return false;
-  } catch (error) {
-    return false;
-  }
-};
+The system includes pre-configured FreeRADIUS files:
+- `config/freeradius/radiusd.conf` - Main FreeRADIUS configuration
+- `config/freeradius/clients.conf` - NAS client definitions
+- `config/freeradius/sites-available/wifi-capping` - Virtual server configuration
+- `config/freeradius/mods-available/rest` - REST module for backend integration
+
+## Usage
+
+### Network Administrator Validation
+
+The validation tool provides comprehensive testing of the FreeRADIUS-NAS-Backend flow:
+
+```bash
+# Run complete validation report
+./scripts/admin_validate.sh --report
+
+# Test specific components
+./scripts/admin_validate.sh --test db        # Database connection
+./scripts/admin_validate.sh --test api       # Backend API
+./scripts/admin_validate.sh --test auth      # RADIUS authentication
+./scripts/admin_validate.sh --test accounting # Accounting flow
+./scripts/admin_validate.sh --test nas       # NAS device configuration
+
+# Show active sessions
+./scripts/admin_validate.sh --sessions
+
+# Reset user data usage
+./scripts/admin_validate.sh --reset-user testuser1
 ```
+
+### API Endpoints
+
+The NAS backend provides the following REST API endpoints:
+
+#### Authentication
+```bash
+POST /api/auth
+{
+  "username": "testuser1",
+  "password": "password123",
+  "nas_ip": "192.168.1.1"
+}
+```
+
+#### Accounting
+```bash
+# Start session
+POST /api/accounting/start
+{
+  "session_id": "session-123",
+  "username": "testuser1",
+  "nas_ip": "192.168.1.1",
+  "nas_port": 1
+}
+
+# Update session
+POST /api/accounting/update
+{
+  "session_id": "session-123",
+  "bytes_in": 1048576,
+  "bytes_out": 524288
+}
+
+# Stop session
+POST /api/accounting/stop
+{
+  "session_id": "session-123"
+}
+```
+
+#### Status
+```bash
+GET /api/status
+```
+
+### Testing
+
+Run the comprehensive test suite:
+
+```bash
+./scripts/run_tests.sh
+```
+
+## Database Schema
+
+The system uses the following main tables:
+
+- **users**: User credentials and data limits
+- **radius_sessions**: Active and historical sessions
+- **nas_devices**: Configured NAS devices
+- **admin_log**: Administrative action audit trail
+
+## Directory Structure
+
+```
+Wifi_Capping_NCUK/
+├── admin_tools/           # Network administrator tools
+│   └── validation_tool.py # Main validation interface
+├── backend/               # NAS backend application
+│   └── nas/
+│       └── radius_backend.py # REST API server
+├── config/                # Configuration files
+│   └── freeradius/        # FreeRADIUS configurations
+├── database/              # Database schemas and scripts
+│   └── schema.sql         # MySQL database schema
+├── docs/                  # Documentation
+├── scripts/               # Setup and utility scripts
+│   ├── setup.sh           # Main setup script
+│   ├── start_backend.sh   # Backend startup
+│   ├── admin_validate.sh  # Admin validation wrapper
+│   └── run_tests.sh       # Test runner
+├── tests/                 # Test suites
+│   └── test_radius_flow.py # Main test suite
+├── .env.example           # Environment template
+├── requirements.txt       # Python dependencies
+└── README.md             # This file
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Database Connection Failed**
+   - Verify MySQL service is running
+   - Check database credentials in `.env`
+   - Ensure database schema is loaded
+
+2. **Backend API Unhealthy**
+   - Check if backend service is running
+   - Verify port 5000 is available
+   - Review backend logs
+
+3. **RADIUS Authentication Failed**
+   - Verify FreeRADIUS service is running
+   - Check NAS client configuration
+   - Review FreeRADIUS logs (`/var/log/freeradius/`)
+
+4. **Test Failures**
+   - Ensure all services are running
+   - Check network connectivity
+   - Verify test user credentials
+
+### Logs
+
+- Backend logs: Check console output when running `start_backend.sh`
+- FreeRADIUS logs: `/var/log/freeradius/radius.log`
+- Database logs: MySQL error logs
+- Admin actions: `admin_log` table in database
+
+## Development
+
+### Adding New Features
+
+1. Backend API: Extend `backend/nas/radius_backend.py`
+2. Admin tools: Modify `admin_tools/validation_tool.py`
+3. Tests: Add test cases to `tests/test_radius_flow.py`
+4. Configuration: Update FreeRADIUS configs in `config/freeradius/`
+
+### Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
 
 ## Security Considerations
 
-- Currently uses demo credentials for development
-- Session data stored in localStorage (consider httpOnly cookies for production)
-- No password encryption (implement proper authentication for production)
-- No CSRF protection (add for production use)
-- No rate limiting on login attempts (implement for production)
-
-## Future Enhancements
-
-- [ ] Backend API integration
-- [ ] Real user management system
-- [ ] Advanced bandwidth controls
-- [ ] Detailed reporting and analytics
-- [ ] Email notifications
-- [ ] User registration system
-- [ ] Multi-factor authentication
-- [ ] Audit logging
-- [ ] API documentation
-- [ ] Docker containerization
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/new-feature`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/new-feature`)
-5. Create a Pull Request
+- Change default passwords and secrets in production
+- Use HTTPS for API communications in production
+- Regularly rotate RADIUS shared secrets
+- Monitor admin audit logs
+- Implement proper firewall rules
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is developed for NCUK educational purposes.
 
 ## Support
 
-For support or questions, please open an issue on the GitHub repository.
+For issues and questions:
+1. Check the troubleshooting section
+2. Review system logs
+3. Run validation tests
+4. Create an issue in the repository
