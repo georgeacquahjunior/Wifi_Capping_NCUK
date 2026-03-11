@@ -1,0 +1,35 @@
+#
+# Dictionary file for NCUK WiFi Capping attributes
+# Custom RADIUS attributes for bandwidth management
+#
+
+# Mikrotik attributes for bandwidth limiting
+ATTRIBUTE	Mikrotik-Rate-Limit		1	string	Mikrotik
+ATTRIBUTE	Mikrotik-Group			2	string	Mikrotik
+ATTRIBUTE	Mikrotik-Wireless-Forward	3	integer	Mikrotik
+ATTRIBUTE	Mikrotik-Wireless-Skip-Dot1x	4	integer	Mikrotik
+ATTRIBUTE	Mikrotik-Wireless-Enc-Algo	5	integer	Mikrotik
+ATTRIBUTE	Mikrotik-Wireless-Enc-Key	6	string	Mikrotik
+
+# Custom NCUK attributes
+ATTRIBUTE	NCUK-User-Category		200	string
+ATTRIBUTE	NCUK-Daily-Data-Limit		201	integer
+ATTRIBUTE	NCUK-Daily-Data-Usage		202	integer
+ATTRIBUTE	NCUK-Monthly-Data-Limit		203	integer
+ATTRIBUTE	NCUK-Device-Limit		204	integer
+ATTRIBUTE	NCUK-Time-Restriction		205	string
+
+# Values for NCUK-User-Category
+VALUE	NCUK-User-Category	Student		1
+VALUE	NCUK-User-Category	Faculty		2
+VALUE	NCUK-User-Category	Staff		3
+VALUE	NCUK-User-Category	Guest		4
+VALUE	NCUK-User-Category	Admin		5
+
+# Values for Mikrotik-Wireless-Forward
+VALUE	Mikrotik-Wireless-Forward	No		0
+VALUE	Mikrotik-Wireless-Forward	Yes		1
+
+# Values for Mikrotik-Wireless-Skip-Dot1x
+VALUE	Mikrotik-Wireless-Skip-Dot1x	No		0
+VALUE	Mikrotik-Wireless-Skip-Dot1x	Yes		1

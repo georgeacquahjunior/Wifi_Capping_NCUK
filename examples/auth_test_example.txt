@@ -1,0 +1,10 @@
+# Example authentication test packet
+# Use with: radclient localhost:1812 auth testing123 < examples/auth_test_example.txt
+
+User-Name = "testuser"
+User-Password = "testpass"
+NAS-IP-Address = 127.0.0.1
+NAS-Port = 1
+NAS-Port-Type = Wireless-IEEE-802-11
+Called-Station-Id = "00:11:22:33:44:55:NCUK-WiFi"
+Calling-Station-Id = "aa:bb:cc:dd:ee:ff"

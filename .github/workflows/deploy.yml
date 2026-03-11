@@ -1,0 +1,74 @@
+name: Deploy WiFi Capping App with CSP Headers
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Validate CSP Configuration
+      run: |
+        echo "Validating CSP configuration files..."
+        
+        # Check if vercel.json exists and is valid JSON
+        if [ -f "vercel.json" ]; then
+          echo "Validating vercel.json..."
+          jq . vercel.json > /dev/null && echo "✓ vercel.json is valid"
+        fi
+        
+        # Check if netlify.toml exists
+        if [ -f "netlify.toml" ]; then
+          echo "✓ netlify.toml found"
+        fi
+        
+        # Check if .htaccess exists
+        if [ -f ".htaccess" ]; then
+          echo "✓ .htaccess found"
+        fi
+        
+        # Validate HTML files contain CSP meta tags
+        if [ -f "index.html" ]; then
+          if grep -q "Content-Security-Policy" index.html; then
+            echo "✓ CSP meta tag found in index.html"
+          else
+            echo "✗ CSP meta tag missing in index.html"
+            exit 1
+          fi
+        fi
+        
+    - name: Test CSP Compliance
+      run: |
+        echo "Testing CSP compliance..."
+        
+        # Check for inline scripts without nonce (should be avoided for strict CSP)
+        if grep -n "<script>" index.html | grep -v "nonce"; then
+          echo "⚠️  Warning: Inline scripts found without nonce"
+        fi
+        
+        # Check for inline styles (noted for future improvement)
+        if grep -n "style=" index.html; then
+          echo "ℹ️  Info: Inline styles found (acceptable with current CSP)"
+        fi
+        
+        echo "CSP compliance check completed"
+        
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
+        exclude_assets: '.github,README.md'
