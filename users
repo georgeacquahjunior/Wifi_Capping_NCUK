@@ -1,0 +1,41 @@
+# Example users file for testing WiFi capping with CoA disconnect
+# Format: username Auth-Type := method, attributes...
+
+# Test user with bandwidth limits
+testuser    Cleartext-Password := "testpass"
+            Reply-Message = "Welcome to NCUK WiFi",
+            Session-Timeout = 3600,
+            Filter-Id = "bandwidth_10mbps",
+            Acct-Interim-Interval = 300
+
+# NCUK staff user with higher limits  
+ncuk_staff  Cleartext-Password := "ncukpass"
+            Reply-Message = "Welcome NCUK Staff",
+            Session-Timeout = 14400,
+            Filter-Id = "bandwidth_50mbps", 
+            Acct-Interim-Interval = 600
+
+# Student user with standard limits
+student     Cleartext-Password := "studentpass"
+            Reply-Message = "Welcome Student",
+            Session-Timeout = 7200,
+            Filter-Id = "bandwidth_20mbps",
+            Acct-Interim-Interval = 300
+
+# Guest user with restricted access
+guest       Cleartext-Password := "guestpass"
+            Reply-Message = "Welcome Guest - Limited Access",
+            Session-Timeout = 1800,
+            Filter-Id = "bandwidth_5mbps",
+            Acct-Interim-Interval = 180
+
+# Admin user for testing
+admin       Cleartext-Password := "adminpass"
+            Reply-Message = "Administrator Access",
+            Session-Timeout = 86400,
+            Filter-Id = "bandwidth_unlimited",
+            Acct-Interim-Interval = 3600
+
+# Default entry for unknown users (reject)
+DEFAULT     Auth-Type := Reject
+            Reply-Message = "Access denied - Invalid credentials"

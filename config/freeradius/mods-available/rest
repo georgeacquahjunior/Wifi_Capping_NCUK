@@ -1,0 +1,49 @@
+# REST module configuration for WiFi Capping Backend
+# /etc/freeradius/3.0/mods-available/rest
+
+rest {
+    # URI for the backend API
+    uri = "http://localhost:5000/api"
+    
+    # Connection pool settings
+    connect_uri = "${uri}"
+    
+    # HTTP method and URI for authorization
+    authorize {
+        uri = "${..connect_uri}/auth"
+        method = 'post'
+        body = 'json'
+        data = '{
+            "username": "%{User-Name}",
+            "password": "%{User-Password}",
+            "nas_ip": "%{NAS-IP-Address}"
+        }'
+        tls = no
+    }
+    
+    # HTTP method and URI for accounting start
+    accounting {
+        uri = "${..connect_uri}/accounting/start"
+        method = 'post'
+        body = 'json'
+        data = '{
+            "session_id": "%{Acct-Session-Id}",
+            "username": "%{User-Name}",
+            "nas_ip": "%{NAS-IP-Address}",
+            "nas_port": "%{NAS-Port}"
+        }'
+        tls = no
+    }
+    
+    # Connection pool configuration
+    pool {
+        start = 5
+        min = 4
+        max = 32
+        spare = 3
+        uses = 0
+        retry_delay = 30
+        lifetime = 0
+        idle_timeout = 60
+    }
+}
