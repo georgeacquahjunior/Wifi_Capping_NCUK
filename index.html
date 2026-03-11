@@ -3,304 +3,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="WiFi Capping Management System for NCUK (Northern Consortium of UK Universities)">
-    <meta name="keywords" content="wifi, bandwidth, management, ncuk, university, network">
-    <meta name="author" content="NCUK">
-    
-    <!-- Security Headers -->
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
-    
-    <!-- Content Security Policy -->
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' 'unsafe-inline';
-        style-src 'self' 'unsafe-inline';
-        img-src 'self' data: https:;
-        font-src 'self';
-        connect-src 'self';
-        object-src 'none';
-    ">
-    
-    <title>WiFi Capping NCUK - Network Management Dashboard</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    
-    <!-- Preload critical resources -->
-    <link rel="preload" href="./src/styles/design-system.css" as="style">
-    <link rel="preload" href="./src/styles/components.css" as="style">
-    
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="./src/styles/design-system.css">
-    <link rel="stylesheet" href="./src/styles/components.css">
+    <title>WiFi Capping Admin Dashboard - NCUK</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div id="root">
-        <!-- Loading state while app initializes -->
-        <div class="min-h-screen flex items-center justify-center bg-gray-50">
-            <div class="text-center">
-                <div class="spinner mb-4"></div>
-                <h2 class="text-xl font-semibold text-gray-700 mb-2">Loading WiFi Management System</h2>
-                <p class="text-gray-500">Please wait while we initialize the application...</p>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="header-title">WiFi Capping Dashboard</h1>
+            <div class="header-actions">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Admin</span>
+                </div>
+                <button class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Application will be rendered here by JavaScript -->
-    <script>
-        // Basic app initialization and demo functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            // Replace loading screen with the main application
-            setTimeout(() => {
-                document.getElementById('root').innerHTML = `
-                    <div class="min-h-screen bg-gray-50">
-                        <!-- Header -->
-                        <header class="bg-white shadow-sm border-b border-gray-200">
-                            <div class="container mx-auto">
-                                <div class="flex items-center justify-between h-16 px-4">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                                            <span class="text-white font-bold text-sm">W</span>
-                                        </div>
-                                        <h1 class="text-xl font-semibold text-gray-900">WiFi Capping NCUK</h1>
-                                    </div>
-                                    <div class="flex items-center gap-4">
-                                        <span class="text-sm text-gray-600">Welcome, Administrator</span>
-                                        <button class="btn btn-error btn-sm">Logout</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </header>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-wifi"></i>
+            <span>NCUK WiFi</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="menu-item active">
+                <a href="#dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#users">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#monitoring">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Network Monitor</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#settings">
+                    <i class="fas fa-cogs"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#reports">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 
-                        <!-- Main Content -->
-                        <main class="container mx-auto py-8">
-                            <!-- Status Overview -->
-                            <section class="mb-8">
-                                <h2 class="text-2xl font-bold text-gray-900 mb-6">System Status</h2>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="status-indicator status-success mb-4">
-                                                <div class="status-dot"></div>
-                                                System Online
-                                            </div>
-                                            <div class="metric-card">
-                                                <span class="metric-number">99.9%</span>
-                                                <span class="metric-label">Uptime</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="metric-card">
-                                                <span class="metric-number">247</span>
-                                                <span class="metric-label">Active Users</span>
-                                                <div class="metric-change positive">
-                                                    <span>↗</span>
-                                                    <span>+12% from yesterday</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="metric-card">
-                                                <span class="metric-number">89%</span>
-                                                <span class="metric-label">Bandwidth Usage</span>
-                                                <div class="metric-change negative">
-                                                    <span>↘</span>
-                                                    <span>-5% from last hour</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- User Management -->
-                            <section class="mb-8">
-                                <div class="flex items-center justify-between mb-6">
-                                    <h2 class="text-2xl font-bold text-gray-900">User Categories</h2>
-                                    <button class="btn btn-primary">Add New User</button>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <div class="card card-accent">
-                                        <div class="card-header">
-                                            <h3 class="card-title">Students</h3>
-                                            <p class="card-subtitle">Standard WiFi access with daily limits</p>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="flex items-center justify-between mb-4">
-                                                <span class="text-sm text-gray-600">Daily Limit</span>
-                                                <span class="badge badge-primary">2-5 GB</span>
-                                            </div>
-                                            <div class="flex items-center justify-between mb-4">
-                                                <span class="text-sm text-gray-600">Speed</span>
-                                                <span class="badge badge-info">5-10 Mbps</span>
-                                            </div>
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-sm text-gray-600">Active Users</span>
-                                                <span class="font-semibold text-gray-900">189</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="card card-success">
-                                        <div class="card-header">
-                                            <h3 class="card-title">Faculty</h3>
-                                            <p class="card-subtitle">Enhanced access for teaching staff</p>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="flex items-center justify-between mb-4">
-                                                <span class="text-sm text-gray-600">Daily Limit</span>
-                                                <span class="badge badge-success">20 GB</span>
-                                            </div>
-                                            <div class="flex items-center justify-between mb-4">
-                                                <span class="text-sm text-gray-600">Speed</span>
-                                                <span class="badge badge-success">50 Mbps</span>
-                                            </div>
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-sm text-gray-600">Active Users</span>
-                                                <span class="font-semibold text-gray-900">42</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="card card-warning">
-                                        <div class="card-header">
-                                            <h3 class="card-title">Guests</h3>
-                                            <p class="card-subtitle">Limited access for visitors</p>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="flex items-center justify-between mb-4">
-                                                <span class="text-sm text-gray-600">Session Limit</span>
-                                                <span class="badge badge-warning">500 MB</span>
-                                            </div>
-                                            <div class="flex items-center justify-between mb-4">
-                                                <span class="text-sm text-gray-600">Speed</span>
-                                                <span class="badge badge-warning">2 Mbps</span>
-                                            </div>
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-sm text-gray-600">Active Users</span>
-                                                <span class="font-semibold text-gray-900">16</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h3 class="card-title">Administrators</h3>
-                                            <p class="card-subtitle">Unlimited access for system management</p>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="flex items-center justify-between mb-4">
-                                                <span class="text-sm text-gray-600">Daily Limit</span>
-                                                <span class="badge badge-gray">Unlimited</span>
-                                            </div>
-                                            <div class="flex items-center justify-between mb-4">
-                                                <span class="text-sm text-gray-600">Speed</span>
-                                                <span class="badge badge-gray">Unlimited</span>
-                                            </div>
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-sm text-gray-600">Active Users</span>
-                                                <span class="font-semibold text-gray-900">3</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- Quick Actions -->
-                            <section class="mb-8">
-                                <h2 class="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <button class="btn btn-primary btn-lg w-full justify-start">
-                                        <span>🔒</span>
-                                        Block User
-                                    </button>
-                                    <button class="btn btn-secondary btn-lg w-full justify-start">
-                                        <span>📊</span>
-                                        View Reports
-                                    </button>
-                                    <button class="btn btn-warning btn-lg w-full justify-start">
-                                        <span>⚙️</span>
-                                        System Settings
-                                    </button>
-                                    <button class="btn btn-success btn-lg w-full justify-start">
-                                        <span>🔄</span>
-                                        Restart Service
-                                    </button>
-                                </div>
-                            </section>
-
-                            <!-- Recent Activity -->
-                            <section>
-                                <h2 class="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="space-y-4">
-                                            <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
-                                                <div class="flex items-center gap-3">
-                                                    <div class="w-2 h-2 bg-success-600 rounded-full"></div>
-                                                    <span class="text-sm text-gray-900">User student1 connected</span>
-                                                </div>
-                                                <span class="text-xs text-gray-500">2 minutes ago</span>
-                                            </div>
-                                            <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
-                                                <div class="flex items-center gap-3">
-                                                    <div class="w-2 h-2 bg-warning-600 rounded-full"></div>
-                                                    <span class="text-sm text-gray-900">Bandwidth limit reached for guest user</span>
-                                                </div>
-                                                <span class="text-xs text-gray-500">5 minutes ago</span>
-                                            </div>
-                                            <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
-                                                <div class="flex items-center gap-3">
-                                                    <div class="w-2 h-2 bg-info-600 rounded-full"></div>
-                                                    <span class="text-sm text-gray-900">System backup completed successfully</span>
-                                                </div>
-                                                <span class="text-xs text-gray-500">1 hour ago</span>
-                                            </div>
-                                            <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
-                                                <div class="flex items-center gap-3">
-                                                    <div class="w-2 h-2 bg-error-600 rounded-full"></div>
-                                                    <span class="text-sm text-gray-900">Failed login attempt detected</span>
-                                                </div>
-                                                <span class="text-xs text-gray-500">2 hours ago</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                        </main>
-
-                        <!-- Footer -->
-                        <footer class="bg-white border-t border-gray-200 mt-12">
-                            <div class="container mx-auto py-6">
-                                <div class="flex flex-col md:flex-row items-center justify-between gap-4 px-4">
-                                    <div class="text-sm text-gray-600">
-                                        © 2024 NCUK (Northern Consortium of UK Universities). All rights reserved.
-                                    </div>
-                                    <div class="flex items-center gap-6 text-sm">
-                                        <a href="#" class="text-gray-600 hover:text-gray-900 transition">Documentation</a>
-                                        <a href="#" class="text-gray-600 hover:text-gray-900 transition">Support</a>
-                                        <a href="#" class="text-gray-600 hover:text-gray-900 transition">Privacy Policy</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </footer>
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <h2 class="section-title">Dashboard Overview</h2>
+            
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
                     </div>
-                `;
-            }, 1500);
-        });
-    </script>
+                    <div class="stat-info">
+                        <h3>Total Users</h3>
+                        <p class="stat-number">1,247</p>
+                        <span class="stat-change positive">+5.2%</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Data Usage</h3>
+                        <p class="stat-number">2.4 TB</p>
+                        <span class="stat-change neutral">Today</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Active Connections</h3>
+                        <p class="stat-number">892</p>
+                        <span class="stat-change positive">Online</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Alerts</h3>
+                        <p class="stat-number">3</p>
+                        <span class="stat-change negative">Warnings</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts and Recent Activity -->
+            <div class="dashboard-grid">
+                <div class="chart-container">
+                    <h3>Bandwidth Usage (24h)</h3>
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-area"></i>
+                        <p>Interactive bandwidth chart would be displayed here</p>
+                    </div>
+                </div>
+                
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <i class="fas fa-user-plus"></i>
+                            <div class="activity-details">
+                                <p>New user registered: john.doe@ncuk.ac.uk</p>
+                                <span class="activity-time">5 minutes ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div class="activity-details">
+                                <p>Data limit exceeded: Building A - Room 204</p>
+                                <span class="activity-time">15 minutes ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fas fa-cog"></i>
+                            <div class="activity-details">
+                                <p>Bandwidth limit updated for student group</p>
+                                <span class="activity-time">1 hour ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- User Management Section -->
+        <section id="users" class="content-section">
+            <h2 class="section-title">User Management</h2>
+            
+            <div class="section-controls">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search users...">
+                </div>
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Add User
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Data Limit</th>
+                            <th>Usage</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar">JD</div>
+                                    <span>John Doe</span>
+                                </div>
+                            </td>
+                            <td>john.doe@ncuk.ac.uk</td>
+                            <td>5 GB</td>
+                            <td>
+                                <div class="usage-bar">
+                                    <div class="usage-fill" style="width: 75%"></div>
+                                </div>
+                                <span>3.75 GB</span>
+                            </td>
+                            <td><span class="status-badge active">Active</span></td>
+                            <td>
+                                <button class="btn-icon" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar">JS</div>
+                                    <span>Jane Smith</span>
+                                </div>
+                            </td>
+                            <td>jane.smith@ncuk.ac.uk</td>
+                            <td>10 GB</td>
+                            <td>
+                                <div class="usage-bar">
+                                    <div class="usage-fill" style="width: 45%"></div>
+                                </div>
+                                <span>4.5 GB</span>
+                            </td>
+                            <td><span class="status-badge active">Active</span></td>
+                            <td>
+                                <button class="btn-icon" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Network Monitoring Section -->
+        <section id="monitoring" class="content-section">
+            <h2 class="section-title">Network Monitoring</h2>
+            
+            <div class="monitoring-grid">
+                <div class="monitor-card">
+                    <h3>Current Bandwidth</h3>
+                    <div class="bandwidth-meter">
+                        <div class="bandwidth-fill" style="width: 65%"></div>
+                    </div>
+                    <p>650 Mbps / 1 Gbps</p>
+                </div>
+                
+                <div class="monitor-card">
+                    <h3>Network Health</h3>
+                    <div class="health-indicator good">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Excellent</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="content-section">
+            <h2 class="section-title">System Settings</h2>
+            
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h3>Default Data Limits</h3>
+                    <form class="settings-form">
+                        <div class="form-group">
+                            <label>Student Limit (GB)</label>
+                            <input type="number" value="5" min="1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Staff Limit (GB)</label>
+                            <input type="number" value="20" min="1" max="100">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+                
+                <div class="settings-card">
+                    <h3>Network Configuration</h3>
+                    <form class="settings-form">
+                        <div class="form-group">
+                            <label>Max Bandwidth (Mbps)</label>
+                            <input type="number" value="1000" min="100" max="10000">
+                        </div>
+                        <div class="form-group">
+                            <label>Alert Threshold (%)</label>
+                            <input type="number" value="80" min="50" max="95">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Settings</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="content-section">
+            <h2 class="section-title">Usage Reports</h2>
+            
+            <div class="reports-controls">
+                <select class="form-select">
+                    <option>Last 7 days</option>
+                    <option>Last 30 days</option>
+                    <option>Last 3 months</option>
+                </select>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-download"></i>
+                    Export Report
+                </button>
+            </div>
+            
+            <div class="report-summary">
+                <h3>Summary</h3>
+                <p>Total data consumed: 45.2 TB</p>
+                <p>Average daily usage: 6.5 TB</p>
+                <p>Peak usage time: 2:00 PM - 4:00 PM</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
 </body>
 </html>

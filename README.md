@@ -1,106 +1,115 @@
-# WiFi Monitoring and Security System for NCUK
+# WiFi Capping Admin Dashboard - NCUK
 
-A comprehensive WiFi network monitoring and security management system designed for the Northern Consortium of UK Universities (NCUK). This system monitors for suspicious network activity, manages security updates, and provides automated threat detection capabilities.
+A responsive admin dashboard for managing WiFi bandwidth capping at the Northern Consortium UK (NCUK).
 
 ## Features
 
-### 🔍 Network Monitoring
-- **Real-time device tracking** - Monitor connected devices and detect unauthorized access
-- **Traffic pattern analysis** - Identify unusual bandwidth usage and suspicious traffic
-- **Port scanning detection** - Alert on suspicious port access attempts
-- **Device whitelisting** - Maintain trusted device lists based on MAC address patterns
+### 📊 Dashboard Overview
+- Real-time statistics display (Total Users, Data Usage, Active Connections, Alerts)
+- Interactive bandwidth usage charts
+- Recent activity feed with live updates
+- Responsive stat cards that adapt to different screen sizes
 
-### 🛡️ Security Management
-- **Automated security updates** - Keep system packages and dependencies current
-- **Vulnerability scanning** - Regular checks for known security vulnerabilities
-- **Configuration security** - Audit configuration files for security issues
-- **Threat intelligence** - Integration with security databases and CVE feeds
+### 👥 User Management
+- Comprehensive user table with search functionality
+- User avatars and status indicators
+- Data usage progress bars
+- Edit and delete user actions
+- Add new user functionality
 
-### 📊 Monitoring & Reporting
-- **Real-time alerting** - Immediate notifications for security events
-- **Comprehensive logging** - Detailed audit trails and event history
-- **Status dashboards** - System health and security status reports
-- **Data export** - Export security events and reports for analysis
+### 📡 Network Monitoring
+- Current bandwidth utilization meter
+- Network health indicators
+- Real-time monitoring capabilities
 
-## Quick Start
+### ⚙️ System Settings
+- Configurable default data limits for students and staff
+- Network configuration options (bandwidth limits, alert thresholds)
+- Form validation and settings persistence
 
-### Installation
+### 📈 Usage Reports
+- Exportable usage reports
+- Date range selection
+- Summary statistics
 
-1. **Run the automated setup**:
-   ```bash
-   sudo ./setup.sh
-   ```
+## Responsive Design
 
-2. **Configure the system**:
-   ```bash
-   nano config.yml  # Edit configuration to match your network
-   ```
+The dashboard is fully responsive and optimized for:
 
-3. **Start monitoring**:
-   ```bash
-   sudo systemctl start wifi-monitor
-   sudo systemctl enable wifi-monitor
-   ```
+- **Desktop** (1024px and above): Full sidebar navigation with all features visible
+- **Tablet** (768px - 1023px): Adapted layout with responsive grids
+- **Mobile** (up to 767px): Collapsible hamburger menu, single-column layouts, optimized touch targets
 
-## Configuration
+### Key Responsive Features
+- Mobile-first CSS approach
+- Flexible grid systems using CSS Grid and Flexbox
+- Collapsible sidebar navigation for mobile devices
+- Responsive data tables with horizontal scrolling on small screens
+- Touch-friendly button sizes and interactions
+- Optimized typography scaling
 
-The system is configured through `config.yml`. Key sections include:
+## Technology Stack
 
-- **Monitoring thresholds** - Device limits, bandwidth alerts, suspicious ports
-- **Security settings** - Auto-update preferences, alert configurations
-- **Network settings** - Interface selection, trusted device patterns
+- **HTML5**: Semantic markup structure
+- **CSS3**: Modern styling with CSS Grid, Flexbox, and CSS Variables
+- **Vanilla JavaScript**: Interactive functionality without dependencies
+- **Font Awesome**: Icon library for consistent iconography
+
+## Screenshots
+
+### Desktop View
+![Desktop Dashboard](screenshots/dashboard-desktop.png)
+
+### Mobile View  
+![Mobile Dashboard](screenshots/dashboard-mobile.png)
+
+### Mobile Menu Open
+![Mobile Menu](screenshots/dashboard-mobile-menu-open.png)
+
+### User Management Section
+![User Management](screenshots/dashboard-user-management.png)
+
+### Settings Page
+![Settings](screenshots/dashboard-settings.png)
+
+### Tablet View
+![Tablet View](screenshots/dashboard-tablet.png)
 
 ## Usage
 
-### Basic Commands
+1. Open `index.html` in a web browser
+2. Or serve the files using a local web server:
+   ```bash
+   python3 -m http.server 8080
+   ```
+3. Navigate through different sections using the sidebar menu
+4. Test responsiveness by resizing the browser window or using browser developer tools
 
-**Start monitoring**:
-```bash
-python3 wifi_monitor.py --daemon
+## Browser Support
+
+- Chrome 60+
+- Firefox 55+
+- Safari 12+
+- Edge 79+
+
+## Accessibility Features
+
+- Semantic HTML structure
+- ARIA labels and roles
+- Keyboard navigation support
+- High contrast color scheme
+- Screen reader friendly
+- Focus indicators
+
+## Development
+
+The dashboard uses modern CSS features and vanilla JavaScript for optimal performance and compatibility. No build process required - simply open the HTML file in a browser.
+
+### File Structure
 ```
-
-**Check system status**:
-```bash
-python3 wifi_monitor.py --status
+├── index.html          # Main dashboard HTML
+├── styles.css          # Responsive CSS styles
+├── script.js          # Interactive JavaScript
+├── README.md          # Documentation
+└── .gitignore         # Git ignore rules
 ```
-
-**Run security scan**:
-```bash
-python3 security_manager.py --scan
-```
-
-**Apply security updates**:
-```bash
-python3 security_manager.py --check --apply
-```
-
-### Utility Scripts
-
-- `./check_status.sh` - Check overall system status
-- `./run_updates.sh` - Run manual security updates
-- `./emergency_stop.sh` - Emergency stop all monitoring
-
-## Security Features
-
-- **Suspicious Activity Detection** - Monitors for unauthorized devices, unusual traffic patterns, and port scanning
-- **Automated Security Updates** - Keeps system packages and Python dependencies current
-- **Vulnerability Scanning** - Regular checks against known security databases
-- **Configuration Auditing** - Scans configuration files for security issues
-
-## Requirements
-
-- Python 3.6+
-- Linux system with systemd
-- Network interface access
-- Sudo privileges for system updates
-
-## Testing
-
-Run the comprehensive test suite:
-```bash
-python3 test_suite.py
-```
-
-## License
-
-This project is licensed under the MIT License.
