@@ -1,0 +1,23 @@
+#
+# Files module configuration for user authentication
+#
+
+files {
+    # User file location
+    usersfile = ${confdir}/users/users
+    
+    # Authentication file
+    acctusersfile = ${confdir}/users/acct_users
+    
+    # Compatibility mode
+    compat = no
+    
+    # Hash size for faster lookups
+    hash_size = 100
+    
+    # Allow authentication using this module
+    auth = yes
+    
+    # Allow accounting using this module
+    acct = yes
+}

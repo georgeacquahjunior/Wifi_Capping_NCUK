@@ -1,0 +1,42 @@
+#
+# Accounting users file for NCUK WiFi system
+# This file defines accounting-specific attributes for users
+#
+
+# Default accounting attributes for all users
+DEFAULT	Service-Type == Framed-User
+	Acct-Interim-Interval = 300,
+	Acct-Status-Type = Start
+
+# Student accounting profile
+student1
+	Acct-Interim-Interval = 300,
+	NCUK-Daily-Data-Limit = 5368709120,
+	NCUK-User-Category = Student
+
+student2
+	Acct-Interim-Interval = 300,
+	NCUK-Daily-Data-Limit = 2147483648,
+	NCUK-User-Category = Student
+
+# Faculty accounting profile  
+faculty1
+	Acct-Interim-Interval = 300,
+	NCUK-Daily-Data-Limit = 21474836480,
+	NCUK-User-Category = Faculty
+
+# Guest accounting profile
+guest1
+	Acct-Interim-Interval = 600,
+	NCUK-Daily-Data-Limit = 524288000,
+	NCUK-User-Category = Guest
+
+# Admin accounting profile
+admin1
+	Acct-Interim-Interval = 300,
+	NCUK-User-Category = Admin
+
+# Test user accounting
+testuser
+	Acct-Interim-Interval = 300,
+	NCUK-User-Category = Admin
