@@ -1,0 +1,171 @@
+# Virtual server for Change of Authorization (CoA) disconnect functionality
+# This server handles CoA-Request and Disconnect-Request packets
+
+server coa_disconnect {
+    # Listen for CoA packets
+    listen {
+        type = coa
+        ipaddr = *
+        port = 3799
+    }
+
+    # Handle incoming CoA requests
+    recv-coa {
+        # Log the CoA request
+        update control {
+            &Module-Failure-Message := "Processing CoA disconnect request"
+        }
+        
+        # Check if this is a disconnect request
+        if (&Packet-Type == Disconnect-Request) {
+            # Log disconnect request
+            update reply {
+                &Reply-Message := "Disconnect request received"
+            }
+            
+            # Process disconnect
+            disconnect_user
+            
+            # Send ACK if successful
+            if (ok) {
+                update reply {
+                    &Error-Cause := Request-Initiated
+                }
+                ok
+            } else {
+                # Send NAK if failed
+                update reply {
+                    &Error-Cause := Request-Not-Supported
+                    &Reply-Message := "Disconnect failed"
+                }
+                fail
+            }
+        }
+        
+        # Handle Change of Authorization requests
+        elsif (&Packet-Type == CoA-Request) {
+            # Log CoA request
+            update reply {
+                &Reply-Message := "CoA request received"
+            }
+            
+            # Process the CoA request
+            change_of_authorization
+            
+            if (ok) {
+                update reply {
+                    &Error-Cause := Request-Initiated
+                }
+                ok
+            } else {
+                update reply {
+                    &Error-Cause := Request-Not-Supported
+                    &Reply-Message := "CoA request failed"
+                }
+                fail
+            }
+        }
+        
+        # Unknown packet type
+        else {
+            update reply {
+                &Error-Cause := Request-Not-Supported
+                &Reply-Message := "Unsupported packet type"
+            }
+            fail
+        }
+    }
+
+    # Send CoA response
+    send-coa {
+        # Add timestamp to response
+        update reply {
+            &Event-Timestamp := "%{integer:Packet-Dst-IP-Address}"
+        }
+        
+        # Log the response
+        if (&reply:Error-Cause == Request-Initiated) {
+            update control {
+                &Module-Success-Message := "CoA request processed successfully"
+            }
+        }
+        
+        ok
+    }
+}
+
+# Policy for disconnect user functionality
+disconnect_user {
+    # Check for required attributes in disconnect request
+    if (!&Acct-Session-Id && !&User-Name && !&NAS-IP-Address) {
+        update reply {
+            &Error-Cause := Missing-Attribute
+            &Reply-Message := "Missing required attributes for disconnect"
+        }
+        fail
+    }
+    
+    # Log disconnect attempt
+    if (&User-Name) {
+        update control {
+            &Module-Success-Message := "Disconnecting user: %{User-Name}"
+        }
+    }
+    
+    if (&Acct-Session-Id) {
+        update control {
+            &Module-Success-Message += ", Session-ID: %{Acct-Session-Id}"
+        }
+    }
+    
+    # Here you would typically:
+    # 1. Look up the session in your session database
+    # 2. Send disconnect to the NAS
+    # 3. Clean up session state
+    
+    # For now, we'll just accept the disconnect
+    update reply {
+        &Error-Cause := Request-Initiated
+    }
+    
+    ok
+}
+
+# Policy for change of authorization functionality  
+change_of_authorization {
+    # Check for required attributes
+    if (!&User-Name && !&Acct-Session-Id) {
+        update reply {
+            &Error-Cause := Missing-Attribute
+            &Reply-Message := "Missing User-Name or Acct-Session-Id"
+        }
+        fail
+    }
+    
+    # Log CoA attempt
+    update control {
+        &Module-Success-Message := "Processing CoA for session"
+    }
+    
+    # Check for specific attributes to change
+    if (&Filter-Id) {
+        # Apply new filter/bandwidth limit
+        update control {
+            &Module-Success-Message += ", applying Filter-ID: %{Filter-Id}"
+        }
+    }
+    
+    if (&Session-Timeout) {
+        # Apply new session timeout
+        update control {
+            &Module-Success-Message += ", new timeout: %{Session-Timeout}"
+        }
+    }
+    
+    # Accept the CoA request
+    update reply {
+        &Error-Cause := Request-Initiated
+    }
+    
+    ok
+}

@@ -1,0 +1,234 @@
+# Default virtual server with WiFi capping and CoA support
+# This server handles authentication and accounting requests
+
+server default {
+    # Authentication listener
+    listen {
+        type = auth
+        ipaddr = *
+        port = 1812
+        limit {
+            max_connections = 16
+            lifetime = 0
+            idle_timeout = 30
+        }
+    }
+
+    # Accounting listener
+    listen {
+        type = acct
+        ipaddr = *
+        port = 1813
+        limit {
+            max_connections = 16
+            lifetime = 0
+            idle_timeout = 30
+        }
+    }
+
+    # Authorization section
+    authorize {
+        # Filter usernames
+        filter_username
+        
+        # Preprocess the request
+        preprocess
+        
+        # Check for valid User-Name
+        if (!&User-Name) {
+            update reply {
+                &Reply-Message := "User-Name is required"
+            }
+            reject
+        }
+        
+        # Apply WiFi capping policies
+        wifi_capping_policy
+        
+        # Check authentication type
+        chap
+        mschap
+        digest
+        
+        # Look up user in files (for testing)
+        files
+        
+        # Set default attributes
+        if (!&reply:Session-Timeout) {
+            update reply {
+                &Session-Timeout := 3600
+            }
+        }
+        
+        # Apply bandwidth limits for WiFi capping
+        if (!&reply:Filter-Id) {
+            update reply {
+                &Filter-Id := "default_bandwidth_limit"
+            }
+        }
+        
+        # Enable interim updates for session monitoring
+        if (!&reply:Acct-Interim-Interval) {
+            update reply {
+                &Acct-Interim-Interval := 300
+            }
+        }
+        
+        # Always accept for now (modify based on your needs)
+        updated
+    }
+
+    # Authentication section
+    authenticate {
+        # PAP authentication
+        pap
+        
+        # CHAP authentication
+        chap
+        
+        # MS-CHAP authentication
+        mschap
+        
+        # EAP authentication (for WiFi)
+        eap
+        
+        # Digest authentication
+        digest
+    }
+
+    # Pre-accounting section
+    preacct {
+        preprocess
+        
+        # Update accounting attributes
+        acct_unique
+        
+        suffix
+        files
+    }
+
+    # Accounting section
+    accounting {
+        # Log accounting packets
+        detail
+        
+        # Store accounting in files (for testing)
+        files
+        
+        # Monitor for session limits (WiFi capping)
+        wifi_session_monitor
+        
+        # Check for data usage limits
+        if (&Acct-Status-Type == Interim-Update) {
+            # Check total data usage
+            if (&Acct-Input-Octets && &Acct-Output-Octets) {
+                # Calculate total usage
+                update control {
+                    &Tmp-Integer-0 := "%{expr:%{Acct-Input-Octets} + %{Acct-Output-Octets}}"
+                }
+                
+                # If usage exceeds limit (example: 1GB = 1073741824 bytes)
+                if (&control:Tmp-Integer-0 > 1073741824) {
+                    # Trigger CoA disconnect
+                    update control {
+                        &Module-Success-Message := "Data limit exceeded, triggering disconnect"
+                    }
+                    
+                    # Here you would send a CoA disconnect packet
+                    # This is just a log for demonstration
+                }
+            }
+        }
+        
+        ok
+    }
+
+    # Session section
+    session {
+        files
+    }
+
+    # Post-authentication section
+    post-auth {
+        # Update reply message
+        update reply {
+            &Reply-Message := "Welcome to NCUK WiFi - bandwidth limits apply"
+        }
+        
+        # Log successful authentication
+        if (&reply:Filter-Id) {
+            update control {
+                &Module-Success-Message := "User authenticated with bandwidth profile: %{reply:Filter-Id}"
+            }
+        }
+        
+        # Store session information for CoA lookup
+        exec
+        
+        # Handle authentication failures
+        Post-Auth-Type REJECT {
+            update reply {
+                &Reply-Message := "Authentication failed"
+            }
+            
+            # Log failed attempts
+            attr_filter.access_reject
+        }
+    }
+
+    # Pre-proxy section (if proxying is needed)
+    pre-proxy {
+        files
+    }
+
+    # Post-proxy section
+    post-proxy {
+        files
+    }
+}
+
+# WiFi capping policy
+wifi_capping_policy {
+    # Check if this is a WiFi client based on NAS-Port-Type
+    if (&NAS-Port-Type == Wireless-IEEE-802-11) {
+        update control {
+            &Module-Success-Message := "WiFi client detected, applying capping policies"
+        }
+        
+        # Set default WiFi bandwidth limits
+        if (!&reply:Filter-Id) {
+            # Default bandwidth profile for WiFi users
+            update reply {
+                &Filter-Id := "wifi_default_10mbps"
+            }
+        }
+        
+        # Set session timeout for WiFi users
+        if (!&reply:Session-Timeout) {
+            update reply {
+                &Session-Timeout := 7200  # 2 hours default
+            }
+        }
+        
+        # Enable session monitoring
+        update reply {
+            &Acct-Interim-Interval := 300  # 5 minutes
+        }
+    }
+    
+    ok
+}
+
+# Session monitoring for data usage
+wifi_session_monitor {
+    # This would typically integrate with your bandwidth monitoring system
+    # For demonstration, we just log the data usage
+    
+    if (&Acct-Input-Octets && &Acct-Output-Octets) {
+        update control {
+            &Module-Success-Message := "Session data - In: %{Acct-Input-Octets}, Out: %{Acct-Output-Octets}"
+        }
+    }
+    
+    ok
+}
