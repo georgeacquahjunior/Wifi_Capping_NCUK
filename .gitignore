@@ -1,26 +1,52 @@
-# Generated files
-usage_data.json
-wifi_capping.log
-test_config.json
-test_usage.json
-
-# Python cache
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
 env/
 venv/
-.env
+ENV/
+env.bak/
+venv.bak/
 
-# IDE files
+# Database
+*.db
+*.sqlite3
+instance/
+
+# Flask
+.flask_session/
+
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# OS generated files
+# OS
 .DS_Store
 .DS_Store?
 ._*
@@ -28,6 +54,10 @@ venv/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Logs
+*.log
+logs/
 
 # Temporary files
 *.tmp
