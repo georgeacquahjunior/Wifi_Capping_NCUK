@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Usage Reports - WiFi Capping System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Usage Reports</h2>
+    <div>
+        <button class="btn btn-success" onclick="exportToCSV()">Export CSV</button>
+        <button class="btn btn-primary" onclick="refreshData()">Refresh</button>
+    </div>
+</div>
+
+<!-- Summary Statistics -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">User Usage Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="usageTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Username</th>
+                                <th>Total Data Used</th>
+                                <th>Sessions Count</th>
+                                <th>Last Activity</th>
+                                <th>Average per Session</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users_usage %}
+                            <tr>
+                                <td>
+                                    <strong>{{ user.username }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ "%.2f GB"|format(user.total_bytes / 1024 / 1024 / 1024) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ user.session_count }}</span>
+                                </td>
+                                <td>
+                                    {{ user.last_activity.strftime('%Y-%m-%d %H:%M') if user.last_activity else 'Never' }}
+                                </td>
+                                <td>
+                                    {{ "%.1f MB"|format(user.total_bytes / user.session_count / 1024 / 1024) if user.session_count > 0 else 'N/A' }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ user.status_class }}">{{ user.status }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Usage Analytics -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Top Users by Data Usage</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="topUsersChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Usage Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="distributionChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Data for charts
+const usersData = [
+    {% for user in users_usage %}
+    {
+        username: "{{ user.username }}",
+        totalBytes: {{ user.total_bytes }},
+        sessionCount: {{ user.session_count }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeReportCharts();
+});
+
+function initializeReportCharts() {
+    // Top Users Chart
+    const topUsersCtx = document.getElementById('topUsersChart').getContext('2d');
+    const sortedUsers = usersData.sort((a, b) => b.totalBytes - a.totalBytes).slice(0, 10);
+    
+    new Chart(topUsersCtx, {
+        type: 'bar',
+        data: {
+            labels: sortedUsers.map(u => u.username),
+            datasets: [{
+                label: 'Data Usage (GB)',
+                data: sortedUsers.map(u => u.totalBytes / 1024 / 1024 / 1024),
+                backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Data Usage (GB)'
+                    }
+                }
+            }
+        }
+    });
+
+    // Usage Distribution Chart
+    const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+    new Chart(distributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: sortedUsers.map(u => u.username),
+            datasets: [{
+                data: sortedUsers.map(u => u.totalBytes),
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                    '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+                    '#4BC0C0', '#FF6384'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function exportToCSV() {
+    const table = document.getElementById('usageTable');
+    let csv = '';
+    
+    // Headers
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent);
+    csv += headers.join(',') + '\n';
+    
+    // Data rows
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const cols = Array.from(row.querySelectorAll('td')).map(td => {
+            return '"' + td.textContent.trim().replace(/"/g, '""') + '"';
+        });
+        csv += cols.join(',') + '\n';
+    });
+    
+    // Download
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'usage_report_' + new Date().toISOString().split('T')[0] + '.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+function refreshData() {
+    location.reload();
+}
+</script>
+
+<style>
+.table th {
+    border-top: none;
+}
+.badge {
+    font-size: 0.8em;
+}
+</style>
+{% endblock %}

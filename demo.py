@@ -1,332 +1,217 @@
+#!/usr/bin/env python3
 """
-WiFi Capping System Demonstration Script
-
-This script demonstrates the key features of the NCUK WiFi Capping System:
-- Network encryption and security policies
-- User management and access control
-- Bandwidth management capabilities
+WiFi Monitoring System Demonstration
+Shows core functionality without requiring full dependencies
 """
 
-import sys
-import os
-from datetime import datetime
+import yaml
+import json
+from datetime import datetime, timedelta
+from typing import Dict, List
 
-# Add src directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-
-from encryption import NetworkEncryption, EncryptionType, SecurityLevel
-from access_control import AccessControl, UserRole, AccessLevel
-
-
-def print_header(title):
-    """Print a formatted header."""
-    print("\n" + "=" * 60)
-    print(f"  {title}")
-    print("=" * 60)
-
-
-def print_section(title):
-    """Print a formatted section."""
-    print(f"\n--- {title} ---")
-
-
-def demonstrate_encryption():
-    """Demonstrate encryption capabilities."""
-    print_header("NETWORK ENCRYPTION & SECURITY POLICIES")
+class MockWiFiMonitor:
+    """Mock WiFi monitor for demonstration purposes"""
     
-    encryption = NetworkEncryption()
+    def __init__(self):
+        self.config = self._load_config()
+        self.suspicious_events = []
+        self.connected_devices = {}
+        print("✓ Mock WiFi Monitor initialized")
     
-    print_section("Creating WiFi Network Encryption Policies")
+    def _load_config(self):
+        """Load configuration"""
+        try:
+            with open('config.yml', 'r') as f:
+                return yaml.safe_load(f)
+        except:
+            return {'monitoring': {'max_devices_per_hour': 50}}
     
-    # Create main campus network
-    main_policy = encryption.create_encryption_policy(
-        network_id="NCUK-Campus",
-        encryption_type=EncryptionType.WPA3_PSK,
-        security_level=SecurityLevel.HIGH,
-        psk=encryption.generate_psk("NCUK-Campus", 32)
-    )
-    print(f"✓ Created main campus network: {main_policy['network_id']}")
-    print(f"  - Encryption: {main_policy['encryption_type']}")
-    print(f"  - Security Level: {main_policy['security_level']}")
-    print(f"  - PSK Length: {len(main_policy['settings']['psk'])} characters")
-    
-    # Create guest network
-    guest_policy = encryption.create_encryption_policy(
-        network_id="NCUK-Guest",
-        encryption_type=EncryptionType.WPA2_PSK,
-        security_level=SecurityLevel.MEDIUM
-    )
-    print(f"✓ Created guest network: {guest_policy['network_id']}")
-    print(f"  - Encryption: {guest_policy['encryption_type']}")
-    print(f"  - Security Level: {guest_policy['security_level']}")
-    
-    # Create enterprise network
-    enterprise_policy = encryption.create_encryption_policy(
-        network_id="NCUK-Enterprise",
-        encryption_type=EncryptionType.WPA3_ENTERPRISE,
-        security_level=SecurityLevel.ENTERPRISE,
-        radius_server="radius.ncuk.edu",
-        radius_secret="enterprise_secret_123"
-    )
-    print(f"✓ Created enterprise network: {enterprise_policy['network_id']}")
-    print(f"  - Encryption: {enterprise_policy['encryption_type']}")
-    print(f"  - RADIUS Server: {enterprise_policy['settings']['radius_server']}")
-    
-    print_section("Generating hostapd Configuration")
-    
-    # Generate configuration for main network
-    config = encryption.generate_hostapd_config("NCUK-Campus")
-    print("✓ Generated hostapd configuration for NCUK-Campus:")
-    print("  Sample configuration lines:")
-    for line in config.split('\n')[:5]:
-        if line.strip():
-            print(f"    {line}")
-    print("    ...")
-    
-    return encryption
-
-
-def demonstrate_access_control():
-    """Demonstrate access control capabilities."""
-    print_header("USER MANAGEMENT & ACCESS CONTROL")
-    
-    access_control = AccessControl()
-    
-    print_section("Creating User Accounts")
-    
-    # Create admin user
-    admin = access_control.create_user(
-        username="admin.user",
-        email="admin@ncuk.edu",
-        role=UserRole.ADMIN,
-        access_level=AccessLevel.UNLIMITED,
-        mac_addresses=["00:11:22:33:44:55"],
-        password="secure_admin_pass"
-    )
-    print(f"✓ Created admin user: {admin.username}")
-    print(f"  - Role: {admin.role.value}")
-    print(f"  - Access Level: {admin.access_level.value}")
-    print(f"  - MAC Addresses: {', '.join(admin.mac_addresses)}")
-    
-    # Create faculty user
-    faculty = access_control.create_user(
-        username="prof.smith",
-        email="prof.smith@ncuk.edu",
-        role=UserRole.FACULTY,
-        access_level=AccessLevel.PREMIUM,
-        mac_addresses=["AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66"]
-    )
-    print(f"✓ Created faculty user: {faculty.username}")
-    print(f"  - Role: {faculty.role.value}")
-    print(f"  - Access Level: {faculty.access_level.value}")
-    print(f"  - Device Count: {len(faculty.mac_addresses)}")
-    
-    # Create student user
-    student = access_control.create_user(
-        username="john.doe",
-        email="john.doe@student.ncuk.edu",
-        role=UserRole.STUDENT,
-        access_level=AccessLevel.BASIC,
-        mac_addresses=["AA:AA:AA:AA:AA:AA"],
-        daily_quota_gb=5.0
-    )
-    print(f"✓ Created student user: {student.username}")
-    print(f"  - Role: {student.role.value}")
-    print(f"  - Daily Quota: {student.daily_quota_gb} GB")
-    
-    print_section("Testing Authentication")
-    
-    # Test authentication
-    auth_result = access_control.authenticate_user("admin.user", "secure_admin_pass")
-    if auth_result:
-        print(f"✓ Authentication successful for {auth_result.username}")
-        print(f"  - Last login: {auth_result.last_login}")
-    
-    # Test failed authentication
-    failed_auth = access_control.authenticate_user("admin.user", "wrong_password")
-    if not failed_auth:
-        print("✓ Authentication correctly failed for wrong password")
-    
-    print_section("MAC Address Authorization")
-    
-    # Test MAC authorization
-    mac_authorized = access_control.authorize_mac_address("AA:BB:CC:DD:EE:FF", faculty.user_id)
-    print(f"✓ MAC authorization for faculty device: {'Allowed' if mac_authorized else 'Denied'}")
-    
-    unauthorized_mac = access_control.authorize_mac_address("FF:FF:FF:FF:FF:FF")
-    print(f"✓ Unknown MAC authorization: {'Allowed' if unauthorized_mac else 'Denied'}")
-    
-    print_section("Guest Access Management")
-    
-    # Create temporary guest access
-    guest_credentials = access_control.create_guest_access(duration_hours=24, bandwidth_limit=5)
-    print("✓ Created guest access:")
-    print(f"  - Username: {guest_credentials['username']}")
-    print(f"  - Password: {guest_credentials['password']}")
-    print(f"  - Expires: {guest_credentials['expires_at']}")
-    print(f"  - Bandwidth Limit: {guest_credentials['bandwidth_limit_mbps']} Mbps")
-    
-    print_section("Time-Based Access Rules")
-    
-    # Create custom time rule
-    custom_rule = access_control.create_time_based_rule(
-        rule_id="exam_period",
-        name="Exam Period Extended Hours",
-        start_time="06:00",
-        end_time="02:00",  # Next day
-        days=["monday", "tuesday", "wednesday", "thursday", "friday"],
-        target_roles=[UserRole.STUDENT],
-        priority=200
-    )
-    print(f"✓ Created time-based rule: {custom_rule.name}")
-    print(f"  - Active: {custom_rule.conditions['start_time']} - {custom_rule.conditions['end_time']}")
-    print(f"  - Days: {', '.join(custom_rule.conditions['days'])}")
-    
-    return access_control
-
-
-def demonstrate_bandwidth_management():
-    """Demonstrate bandwidth management capabilities."""
-    print_header("BANDWIDTH MANAGEMENT & QoS")
-    
-    # Import with mock to avoid traffic control errors
-    import unittest.mock
-    
-    with unittest.mock.patch('subprocess.run') as mock_run:
-        mock_run.return_value.returncode = 0
+    def simulate_monitoring(self):
+        """Simulate monitoring activities"""
+        print("\n=== Simulating Network Monitoring ===")
         
-        from bandwidth import BandwidthManager, TrafficClass, BandwidthLimit
-        
-        bandwidth_mgr = BandwidthManager(interface="test0")
-        
-        print_section("Setting User Bandwidth Limits")
-        
-        # Set bandwidth for different user types
-        limits = [
-            ("admin_user", 1000.0, 500.0, 95, "Administrator"),
-            ("faculty_user", 200.0, 100.0, 80, "Faculty"),
-            ("staff_user", 50.0, 25.0, 60, "Staff"),
-            ("student_user", 25.0, 10.0, 40, "Student"),
-            ("guest_user", 5.0, 2.0, 20, "Guest")
+        # Simulate device detection
+        test_devices = [
+            "00:11:22:33:44:55",  # Trusted device
+            "AA:BB:CC:DD:EE:FF",  # Untrusted device
+            "FF:EE:DD:CC:BB:AA"   # Another untrusted device
         ]
         
-        for user_id, down, up, priority, role in limits:
-            bandwidth_mgr.set_user_bandwidth_limit(user_id, down, up, priority)
-            print(f"✓ Set bandwidth for {role}: {down}↓/{up}↑ Mbps (Priority: {priority})")
+        for mac in test_devices:
+            self.connected_devices[mac] = {
+                'last_seen': datetime.now(),
+                'ip': f'192.168.1.{len(self.connected_devices)+100}'
+            }
+            print(f"✓ Detected device: {mac}")
         
-        print_section("Quality of Service Rules")
+        # Simulate suspicious activity detection
+        self._detect_suspicious_activity()
         
-        # Display QoS rules
-        qos_rules = list(bandwidth_mgr.qos_rules.values())
-        print(f"✓ Active QoS rules: {len(qos_rules)}")
-        for rule in qos_rules[:3]:  # Show first 3
-            print(f"  - {rule.name}: {rule.traffic_class.value} priority")
+        return len(self.suspicious_events)
+    
+    def _detect_suspicious_activity(self):
+        """Detect suspicious activity"""
+        # Check for untrusted devices
+        trusted_patterns = self.config.get('network', {}).get('trusted_mac_patterns', ['00:11:22:*'])
         
-        print_section("Usage Monitoring")
+        for mac in self.connected_devices:
+            is_trusted = any(mac.startswith(pattern.replace('*', '')) for pattern in trusted_patterns)
+            
+            if not is_trusted:
+                event = {
+                    'timestamp': datetime.now().isoformat(),
+                    'type': 'untrusted_device',
+                    'description': f'Untrusted device detected: {mac}',
+                    'severity': 'medium'
+                }
+                self.suspicious_events.append(event)
+                print(f"⚠ ALERT: {event['description']}")
         
-        # Simulate usage stats
-        bandwidth_mgr._collect_usage_stats()
-        stats = bandwidth_mgr.get_usage_stats()
-        print(f"✓ Monitoring {len(stats)} active users")
+        # Check device count
+        device_count = len(self.connected_devices)
+        max_devices = self.config['monitoring']['max_devices_per_hour']
         
-        print_section("System Reports")
-        
-        # Generate usage report
-        report = bandwidth_mgr.generate_usage_report()
-        print(f"✓ Generated usage report:")
-        print(f"  - Report time: {report['generated_at']}")
-        print(f"  - Total users: {report['total_users']}")
-        print(f"  - Total download: {report['total_download_gb']:.2f} GB")
-        print(f"  - Total upload: {report['total_upload_gb']:.2f} GB")
-        
-        return bandwidth_mgr
+        if device_count > max_devices:
+            event = {
+                'timestamp': datetime.now().isoformat(),
+                'type': 'too_many_devices',
+                'description': f'Too many devices: {device_count} (limit: {max_devices})',
+                'severity': 'high'
+            }
+            self.suspicious_events.append(event)
+            print(f"🚨 CRITICAL: {event['description']}")
+    
+    def get_status_report(self):
+        """Generate status report"""
+        return {
+            'timestamp': datetime.now().isoformat(),
+            'connected_devices': len(self.connected_devices),
+            'suspicious_events': len(self.suspicious_events),
+            'last_24h_events': len([e for e in self.suspicious_events 
+                                  if datetime.fromisoformat(e['timestamp']) > datetime.now() - timedelta(hours=24)]),
+            'system_status': 'operational'
+        }
 
-
-def demonstrate_system_integration():
-    """Demonstrate complete system integration."""
-    print_header("COMPLETE SYSTEM INTEGRATION")
+class MockSecurityManager:
+    """Mock security manager for demonstration purposes"""
     
-    print_section("System Configuration Export")
+    def __init__(self):
+        self.vulnerabilities = []
+        self.update_history = []
+        print("✓ Mock Security Manager initialized")
     
-    # Initialize all components
-    encryption = NetworkEncryption()
-    access_control = AccessControl()
+    def simulate_security_scan(self):
+        """Simulate security vulnerability scan"""
+        print("\n=== Simulating Security Scan ===")
+        
+        # Simulate finding vulnerabilities
+        mock_vulnerabilities = [
+            {
+                'cve_id': 'CVE-2023-1234',
+                'severity': 'medium',
+                'description': 'Example vulnerability in test package',
+                'affected_packages': ['test-package-1']
+            },
+            {
+                'cve_id': 'CVE-2023-5678',
+                'severity': 'high',
+                'description': 'Critical security flaw in network component',
+                'affected_packages': ['network-lib']
+            }
+        ]
+        
+        self.vulnerabilities = mock_vulnerabilities
+        
+        for vuln in mock_vulnerabilities:
+            print(f"🔍 Found vulnerability: {vuln['cve_id']} ({vuln['severity']}) - {vuln['description']}")
+        
+        return len(mock_vulnerabilities)
     
-    # Create comprehensive setup
-    encryption.create_encryption_policy(
-        "NCUK-Integrated", EncryptionType.WPA3_PSK, SecurityLevel.HIGH
-    )
+    def simulate_security_updates(self):
+        """Simulate applying security updates"""
+        print("\n=== Simulating Security Updates ===")
+        
+        mock_updates = [
+            {'package': 'system-security', 'from': '1.0.0', 'to': '1.0.1', 'status': 'success'},
+            {'package': 'network-monitor', 'from': '2.1.0', 'to': '2.1.2', 'status': 'success'},
+            {'package': 'wifi-driver', 'from': '3.4.1', 'to': '3.4.3', 'status': 'success'}
+        ]
+        
+        for update in mock_updates:
+            self.update_history.append({
+                'timestamp': datetime.now().isoformat(),
+                'package': update['package'],
+                'from_version': update['from'],
+                'to_version': update['to'],
+                'success': update['status'] == 'success'
+            })
+            print(f"📦 Updated {update['package']}: {update['from']} → {update['to']} ✓")
+        
+        return len(mock_updates)
     
-    user = access_control.create_user(
-        "integrated.user", "integrated@ncuk.edu", UserRole.STAFF,
-        mac_addresses=["BB:BB:BB:BB:BB:BB"]
-    )
-    
-    # Export configurations
-    encryption_policies = encryption.list_policies()
-    user_list = access_control.export_user_list()
-    access_rules = access_control.export_access_rules()
-    
-    print(f"✓ System configuration export:")
-    print(f"  - Encryption policies: {len(encryption_policies)}")
-    print(f"  - User accounts: {len(user_list)}")
-    print(f"  - Access rules: {len(access_rules)}")
-    
-    print_section("Security Validation")
-    
-    # Validate configurations
-    valid_policies = 0
-    for policy in encryption_policies:
-        if encryption.validate_encryption_policy(policy):
-            valid_policies += 1
-    
-    print(f"✓ Security validation:")
-    print(f"  - Valid encryption policies: {valid_policies}/{len(encryption_policies)}")
-    print(f"  - Active users: {len([u for u in user_list if u['is_active']])}")
-    
-    print_section("System Statistics")
-    
-    # System overview
-    total_networks = len(encryption_policies)
-    total_users = len(user_list)
-    admin_users = len([u for u in user_list if u['role'] == 'admin'])
-    guest_users = len([u for u in user_list if u['role'] == 'guest'])
-    
-    print(f"✓ System overview:")
-    print(f"  - Total networks configured: {total_networks}")
-    print(f"  - Total user accounts: {total_users}")
-    print(f"  - Administrative users: {admin_users}")
-    print(f"  - Guest accounts: {guest_users}")
-    print(f"  - System operational: {'Yes' if total_networks > 0 and total_users > 0 else 'No'}")
-
+    def get_security_status(self):
+        """Get security status"""
+        critical_count = sum(1 for v in self.vulnerabilities if v['severity'] == 'critical')
+        high_count = sum(1 for v in self.vulnerabilities if v['severity'] == 'high')
+        
+        if critical_count > 0:
+            return 'critical'
+        elif high_count > 0:
+            return 'high_risk'
+        else:
+            return 'secure'
 
 def main():
-    """Main demonstration function."""
-    print("WiFi Capping System for NCUK")
-    print("Comprehensive Network Management Demonstration")
-    print(f"Demonstration started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    """Main demonstration function"""
+    print("🚀 WiFi Monitoring and Security System Demonstration")
+    print("=" * 60)
     
-    try:
-        # Run all demonstrations
-        demonstrate_encryption()
-        demonstrate_access_control()
-        demonstrate_bandwidth_management()
-        demonstrate_system_integration()
-        
-        print_header("DEMONSTRATION COMPLETE")
-        print("✅ All system components demonstrated successfully!")
-        print("✅ Network encryption and access policies are fully functional!")
-        print("✅ The WiFi Capping System is ready for deployment.")
-        print("\nFor more information, see README.md and configuration files.")
-        
-        return 0
-        
-    except Exception as e:
-        print(f"\n❌ Demonstration failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
-
+    # Initialize components
+    monitor = MockWiFiMonitor()
+    security_mgr = MockSecurityManager()
+    
+    # Demonstrate monitoring
+    suspicious_events = monitor.simulate_monitoring()
+    
+    # Demonstrate security scanning
+    vulnerabilities_found = security_mgr.simulate_security_scan()
+    
+    # Demonstrate security updates
+    updates_applied = security_mgr.simulate_security_updates()
+    
+    # Generate reports
+    print("\n=== System Status Report ===")
+    status = monitor.get_status_report()
+    for key, value in status.items():
+        print(f"{key}: {value}")
+    
+    print(f"\nSecurity Status: {security_mgr.get_security_status()}")
+    
+    # Summary
+    print("\n=== Demonstration Summary ===")
+    print(f"✓ Monitored {len(monitor.connected_devices)} network devices")
+    print(f"⚠ Detected {suspicious_events} suspicious events")
+    print(f"🔍 Found {vulnerabilities_found} security vulnerabilities")
+    print(f"📦 Applied {updates_applied} security updates")
+    print(f"📊 System status: {status['system_status']}")
+    
+    # Export sample data
+    sample_events = {
+        'monitoring_events': monitor.suspicious_events,
+        'vulnerabilities': security_mgr.vulnerabilities,
+        'update_history': security_mgr.update_history,
+        'generated_at': datetime.now().isoformat()
+    }
+    
+    with open('demo_output.json', 'w') as f:
+        json.dump(sample_events, f, indent=2)
+    
+    print("\n✅ Demonstration complete! Sample data exported to 'demo_output.json'")
+    print("\nThis demonstrates the core functionality of the WiFi monitoring system:")
+    print("- Real-time device monitoring and suspicious activity detection")
+    print("- Security vulnerability scanning and alerting")
+    print("- Automated security update management")
+    print("- Comprehensive reporting and data export")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
