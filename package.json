@@ -1,45 +1,58 @@
 {
   "name": "wifi-capping-ncuk",
   "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "@types/node": "^16.18.0",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.8.0",
-    "react-scripts": "5.0.1",
-    "typescript": "^4.9.0",
-    "web-vitals": "^2.1.0"
-  },
+  "description": "WiFi Capping Management System for NCUK (Northern Consortium of UK Universities)",
+  "main": "index.html",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "npx serve .",
+    "dev": "npx serve . -p 3000",
+    "build": "echo 'Build completed - static files ready for deployment'",
+    "preview": "npx serve . -p 4173",
+    "lint:css": "npx stylelint 'src/styles/**/*.css'",
+    "format:css": "npx prettier --write 'src/styles/**/*.css'",
+    "validate": "npx html-validate index.html"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
+  "keywords": [
+    "wifi",
+    "bandwidth",
+    "management",
+    "ncuk",
+    "university",
+    "network",
+    "dashboard",
+    "css",
+    "design-system"
+  ],
+  "author": "NCUK",
+  "license": "MIT",
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.16.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0"
+    "prettier": "^3.0.0",
+    "stylelint": "^15.0.0",
+    "stylelint-config-standard": "^34.0.0",
+    "html-validate": "^8.0.0",
+    "serve": "^14.0.0"
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5"
+  },
+  "stylelint": {
+    "extends": ["stylelint-config-standard"],
+    "rules": {
+      "declaration-empty-line-before": null,
+      "custom-property-empty-line-before": null,
+      "comment-empty-line-before": null
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/georgeacquahjunior/Wifi_Capping_NCUK"
+  },
+  "homepage": "https://github.com/georgeacquahjunior/Wifi_Capping_NCUK#readme",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
   }
 }
