@@ -1,0 +1,7 @@
+{
+  "data_limit_gb": 20,
+  "reset_period_days": 30,
+  "check_interval_seconds": 60,
+  "wifi_interface": "wlan0",
+  "log_level": "INFO"
+}

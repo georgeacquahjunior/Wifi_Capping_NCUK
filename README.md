@@ -1,28 +1,17 @@
-# NCUK WiFi Capping System
+# Wi-Fi Usage Capping System for NCUK
 
-A comprehensive WiFi network management system designed for educational institutions, specifically the Northern Consortium UK (NCUK). This system provides robust network encryption, access control policies, and bandwidth management capabilities.
+A robust Python-based system that monitors Wi-Fi data usage and automatically disconnects the connection when usage exceeds 20GB to help manage bandwidth consumption.
 
 ## Features
 
-### 🔒 Network Encryption & Security
-- **Multi-Protocol Support**: WPA2/WPA3-PSK and Enterprise authentication
-- **Dynamic Key Management**: Automatic PSK generation and rotation
-- **Certificate Management**: Enterprise-grade certificate handling
-- **Security Policies**: Configurable encryption standards and validation
-
-### 👥 Access Control & User Management
-- **Role-Based Access**: Support for Admin, Faculty, Staff, Student, and Guest roles
-- **MAC Address Filtering**: Whitelist/blacklist management
-- **Time-Based Access**: Configurable access windows by user role
-- **Session Management**: Concurrent session limits and timeout controls
-- **Guest Access**: Temporary credentials with automatic expiration
-
-### 📊 Bandwidth Management & QoS
-- **Per-User Limits**: Customizable download/upload speed limits
-- **Traffic Classification**: Priority-based Quality of Service (QoS)
-- **Fair Usage Policy**: Automatic throttling for heavy users
-- **Real-time Monitoring**: Bandwidth usage tracking and reporting
-- **Emergency Controls**: System-wide bandwidth throttling capabilities
+- **Automatic Monitoring**: Continuously tracks network data usage in the background
+- **20GB Usage Limit**: Automatically disconnects Wi-Fi when usage reaches 20GB
+- **Persistent Storage**: Maintains usage data across system restarts
+- **Configurable Settings**: Customizable data limits, monitoring intervals, and reset periods
+- **Multiple Disconnect Methods**: Uses multiple techniques to ensure reliable Wi-Fi disconnection
+- **Logging System**: Comprehensive logging for monitoring and debugging
+- **Status Reporting**: Real-time usage status and statistics
+- **Manual Controls**: Commands for status checking, resetting usage, and reconnecting
 
 ## Quick Start
 
@@ -36,277 +25,182 @@ cd Wifi_Capping_NCUK
 
 2. Install dependencies:
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
-3. Configure the system:
+3. For system-wide installation (recommended):
 ```bash
-cp config/system_config.yaml.example config/system_config.yaml
-# Edit the configuration file as needed
+sudo ./install.sh
 ```
 
-### Running the System
+### Basic Usage
 
-1. **Test Configuration**:
+**Check current usage status:**
 ```bash
-python wifi_capping_system.py --test
+python3 wifi_capping.py --status
 ```
 
-2. **Start the System**:
+**Start monitoring (runs continuously):**
 ```bash
-python wifi_capping_system.py
+python3 wifi_capping.py --monitor
 ```
 
-3. **Run with Custom Configuration**:
+**Reset usage data:**
 ```bash
-python wifi_capping_system.py --config /path/to/config.yaml
+python3 wifi_capping.py --reset
+```
+
+**Reconnect Wi-Fi after disconnection:**
+```bash
+python3 wifi_capping.py --reconnect
+```
+
+## System Service (Automatic Startup)
+
+After running the installation script, the system can be managed as a service:
+
+```bash
+# Start the service
+sudo systemctl start wifi-capping
+
+# Enable automatic startup
+sudo systemctl enable wifi-capping
+
+# Check service status
+sudo systemctl status wifi-capping
+
+# View logs
+sudo journalctl -u wifi-capping -f
+
+# Stop the service
+sudo systemctl stop wifi-capping
 ```
 
 ## Configuration
 
-The system is configured through `config/system_config.yaml`. Key sections include:
+The system uses a `config.json` file for configuration:
 
-### Network Settings
-```yaml
-network:
-  primary_ssid: "NCUK-WiFi"
-  guest_ssid: "NCUK-Guest"
-  interface: "wlan0"
-  channel: 6
-  country_code: "GB"
+```json
+{
+  "data_limit_gb": 20,
+  "reset_period_days": 30,
+  "check_interval_seconds": 60,
+  "wifi_interface": "wlan0",
+  "log_level": "INFO"
+}
 ```
 
-### Encryption Policies
-```yaml
-encryption:
-  default_type: "wpa3-psk"
-  security_policies:
-    min_password_length: 12
-    key_rotation_days: 90
-```
+### Configuration Options
 
-### Access Control
-```yaml
-access_control:
-  mac_filtering:
-    enabled: true
-    default_policy: "deny"
-  time_restrictions:
-    enabled: true
-```
+- **data_limit_gb**: Data usage limit in gigabytes (default: 20)
+- **reset_period_days**: Days after which usage data resets (default: 30)
+- **check_interval_seconds**: How often to check usage in seconds (default: 60)
+- **wifi_interface**: Wi-Fi interface name (default: "wlan0", auto-detected)
+- **log_level**: Logging verbosity (DEBUG, INFO, WARNING, ERROR)
 
-### Bandwidth Limits
-```yaml
-bandwidth:
-  limits:
-    student:
-      download: 10  # Mbps
-      upload: 5
-    faculty:
-      download: 200
-      upload: 100
-```
+## How It Works
 
-## API Usage
+1. **Network Monitoring**: Uses `psutil` to monitor network interface statistics
+2. **Usage Tracking**: Calculates data usage by tracking bytes sent/received
+3. **Persistent Storage**: Saves usage data to `usage_data.json`
+4. **Limit Enforcement**: When 20GB limit is reached, automatically disconnects Wi-Fi using:
+   - NetworkManager (`nmcli`)
+   - ifconfig commands
+   - ip commands
+5. **Automatic Reset**: Usage data resets after the configured period (default: 30 days)
 
-### Creating Users
-```python
-from src.access_control import AccessControl, UserRole, AccessLevel
+## Files and Directories
 
-access_control = AccessControl()
-
-# Create a student user
-user = access_control.create_user(
-    username="john.doe",
-    email="john.doe@student.ncuk.edu",
-    role=UserRole.STUDENT,
-    access_level=AccessLevel.BASIC,
-    mac_addresses=["AA:BB:CC:DD:EE:FF"]
-)
-```
-
-### Managing Encryption
-```python
-from src.encryption import NetworkEncryption, EncryptionType, SecurityLevel
-
-encryption = NetworkEncryption()
-
-# Create WPA3 network policy
-policy = encryption.create_encryption_policy(
-    network_id="SecureNetwork",
-    encryption_type=EncryptionType.WPA3_PSK,
-    security_level=SecurityLevel.HIGH
-)
-
-# Generate hostapd configuration
-config = encryption.generate_hostapd_config("SecureNetwork")
-```
-
-### Bandwidth Management
-```python
-from src.bandwidth import BandwidthManager
-
-bandwidth_mgr = BandwidthManager(interface="wlan0")
-
-# Set user bandwidth limits
-bandwidth_mgr.set_user_bandwidth_limit(
-    user_id="user123",
-    download_mbps=25.0,
-    upload_mbps=10.0,
-    priority=60
-)
-
-# Generate usage report
-report = bandwidth_mgr.generate_usage_report()
-```
-
-## System Architecture
-
-```
-┌─────────────────────────────────────────────────────┐
-│                WiFi Capping System                 │
-├─────────────────────────────────────────────────────┤
-│  Main Application (wifi_capping_system.py)         │
-├─────────────────┬───────────────┬───────────────────┤
-│  Encryption     │ Access Control│ Bandwidth Manager │
-│  - WPA2/WPA3    │ - User Mgmt   │ - QoS Rules       │
-│  - Certificates │ - MAC Filter  │ - Traffic Shaping │
-│  - Key Rotation │ - Time Access │ - Usage Monitoring│
-└─────────────────┴───────────────┴───────────────────┘
-```
+- `wifi_capping.py`: Main application script
+- `config.json`: Configuration file
+- `usage_data.json`: Usage data storage (created automatically)
+- `wifi_capping.log`: Log file
+- `requirements.txt`: Python dependencies
+- `install.sh`: System installation script
+- `wifi-capping.service`: Systemd service file
+- `test_wifi_capping.py`: Test suite
 
 ## Testing
 
-Run the comprehensive test suite:
+Run the test suite to verify functionality:
 
 ```bash
-python -m pytest tests/ -v
+python3 test_wifi_capping.py
 ```
 
-Or run specific test modules:
+The test suite includes:
+- Unit tests for core functionality
+- Integration tests for configuration and data persistence
+- Mock testing for network interface interactions
 
-```bash
-# Test encryption functionality
-python tests/test_wifi_system.py TestNetworkEncryption
+## Security and Permissions
 
-# Test access control
-python tests/test_wifi_system.py TestAccessControl
+The system requires elevated privileges to:
+- Monitor network interfaces
+- Disconnect Wi-Fi connections
+- Access system network configuration
 
-# Test bandwidth management
-python tests/test_wifi_system.py TestBandwidthManager
-```
-
-## Security Considerations
-
-### Default Credentials
-⚠️ **Important**: Change default admin credentials before deployment:
-- Default admin username: `admin`
-- Default admin password: `admin123`
-
-### Network Security
-- WPA3 is recommended for new deployments
-- Regular key rotation is enforced
-- Certificate validation is performed for enterprise networks
-- MAC address randomization detection is supported
-
-### System Security
-- Sensitive data is encrypted at rest
-- Password hashing uses PBKDF2 with high iteration count
-- Session management prevents unauthorized access
-- Audit logging tracks all security events
-
-## Monitoring & Maintenance
-
-### Usage Reports
-Generate detailed usage reports:
-```bash
-# Via API
-report = system.get_usage_report()
-
-# Via command line (future feature)
-python wifi_capping_system.py --report --format json
-```
-
-### Log Files
-- Access logs: `/var/log/ncuk-wifi/access.log`
-- Security logs: `/var/log/ncuk-wifi/security.log`
-- Bandwidth logs: `/var/log/ncuk-wifi/bandwidth.log`
-- Error logs: `/var/log/ncuk-wifi/error.log`
-
-### Maintenance Tasks
-- Automatic cleanup of expired guest accounts
-- Fair usage policy enforcement
-- Log rotation and archival
-- Database optimization
-
-## Integration
-
-### LDAP/Active Directory
-```yaml
-integration:
-  ldap:
-    enabled: true
-    server: "ldap.ncuk.edu"
-    base_dn: "ou=users,dc=ncuk,dc=edu"
-```
-
-### External Authentication
-```yaml
-integration:
-  external_auth:
-    enabled: true
-    type: "oauth2"
-    provider_url: "https://auth.ncuk.edu"
-```
+When running as a service, it operates with root privileges to ensure reliable network control.
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Traffic Control Initialization Failed**
-   - Ensure the system has root privileges
-   - Check that the network interface exists
-   - Verify tc (traffic control) utilities are installed
+**Wi-Fi won't disconnect:**
+- Check if the correct Wi-Fi interface is detected
+- Verify the system has NetworkManager or network tools installed
+- Check logs for specific error messages
 
-2. **User Authentication Failing**
-   - Check password hash validation
-   - Verify user account is active
-   - Confirm time-based access rules
+**Usage not tracking correctly:**
+- Ensure the system has proper permissions to read network statistics
+- Check if the network interface name is correct in configuration
 
-3. **Bandwidth Limits Not Applied**
-   - Verify traffic control is initialized
-   - Check that user has bandwidth limits set
-   - Ensure network interface is active
+**Service won't start:**
+- Verify Python 3 and psutil are installed
+- Check service logs: `sudo journalctl -u wifi-capping`
+- Ensure configuration file is valid JSON
 
-### Debug Mode
-Enable debug logging:
-```yaml
-development:
-  debug_mode: true
-  verbose_logging: true
+### Log Analysis
+
+Check the log file for detailed information:
+```bash
+tail -f wifi_capping.log
 ```
+
+Common log messages:
+- `Starting Wi-Fi usage monitoring...`: System started successfully
+- `Current usage: X.XXgb / 20GB`: Regular status updates
+- `Data limit exceeded! Disconnecting Wi-Fi...`: Limit reached
+- `Wi-Fi disconnected`: Successful disconnection
+
+## Requirements
+
+- **Operating System**: Linux (tested on Ubuntu, Debian, CentOS)
+- **Python**: 3.6 or higher
+- **Dependencies**: psutil (automatically installed)
+- **Network Tools**: NetworkManager, ifconfig, or ip commands
+- **Permissions**: Root access for Wi-Fi control
+
+## Use Cases
+
+- **Educational Institutions**: Manage student internet usage
+- **Shared Networks**: Control bandwidth consumption in shared environments
+- **Data Plan Management**: Prevent exceeding mobile hotspot limits
+- **Network Administration**: Automated bandwidth enforcement
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is open source. Please check the repository for license details.
 
 ## Support
 
-For support and questions:
-- Create an issue on GitHub
-- Contact the NCUK IT team
-- Check the documentation in the `docs/` directory
-
-## Acknowledgments
-
-- Northern Consortium UK (NCUK) for project requirements
-- Educational technology community for best practices
-- Open source networking tools and libraries used in this project
+For issues, questions, or contributions, please use the GitHub issue tracker.
