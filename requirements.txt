@@ -1,7 +1,11 @@
-flask==2.3.3
-pyrad==2.4
-pymysql==1.1.0
-sqlalchemy==2.0.20
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+SQLAlchemy==2.0.23
+pydantic==2.5.0
 python-dotenv==1.0.0
+pytest==8.4.1
+httpx==0.28.1
 requests==2.31.0
-cryptography==41.0.4
