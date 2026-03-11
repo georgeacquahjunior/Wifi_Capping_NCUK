@@ -1,3 +1,58 @@
+# FreeRADIUS log files
+*.log
+radius.log
+radacct/
+radutmp
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+
+# Test artifacts
+test_results.txt
+*.test
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Runtime files
+*.pid
+*.lock
+core.*
+
+# SSL certificates and keys (if any are added)
+*.pem
+*.key
+*.crt
+*.p12
+*.der
+
+# Database files (if using SQL backend)
+*.db
+*.sqlite
+*.sqlite3
+
+# Archive files
+*.tar.gz
+*.zip
+*.rar
+
+# Build artifacts
+build/
+dist/
 # Dependencies
 node_modules/
 backend/venv/
