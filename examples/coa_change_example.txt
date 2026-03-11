@@ -1,0 +1,11 @@
+# Example CoA-Request packet for changing session attributes
+# Use with: radclient localhost:3799 coa testing123 < examples/coa_change_example.txt
+
+Packet-Type = CoA-Request
+User-Name = "testuser"
+Acct-Session-Id = "TEST-SESSION-12345"
+NAS-IP-Address = 127.0.0.1
+Filter-Id = "bandwidth_5mbps"
+Session-Timeout = 1800
+Event-Timestamp = 1609459200
+Reply-Message = "Bandwidth reduced due to policy violation"
