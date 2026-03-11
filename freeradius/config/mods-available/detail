@@ -1,0 +1,31 @@
+#
+# Detail module for accounting logs
+#
+
+detail {
+    # Detailed accounting log file
+    filename = ${radacctdir}/%{%{Packet-Src-IP-Address}:-%{Packet-Src-IPv6-Address}}/detail-%Y%m%d
+    
+    # Create subdirectories as needed
+    escape_filenames = no
+    
+    # Log accounting packets
+    log_packet_header = no
+    
+    # File permissions
+    permissions = 0600
+    
+    # Directory permissions  
+    dir_permissions = 0755
+    
+    # Enable locking
+    locking = no
+    
+    # Suppress certain attributes from logs (for privacy)
+    suppress {
+        User-Password
+        Chap-Password
+        MS-CHAP-Response
+        MS-CHAP2-Response
+    }
+}
