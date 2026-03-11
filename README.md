@@ -1,248 +1,197 @@
-# WiFi Capping NCUK
+# WiFi Capping NCUK - Admin Dashboard
 
-A comprehensive, secure WiFi bandwidth management system designed for NCUK (Northern Consortium of UK Universities) institutions. This system provides robust policy enforcement, Acceptable Use Policy (AUP) compliance monitoring, and advanced security features.
+A React-based admin dashboard for managing WiFi bandwidth capping in educational institutions. This application provides secure admin authentication with protected routes for system management.
 
-## 🔒 Security Features
+## Features
 
-### Encryption & Data Protection
-- **AES-256 Encryption**: All sensitive data encrypted at rest and in transit
-- **TLS/SSL**: Mandatory encryption for all communications
-- **Key Management**: Secure key generation, rotation, and storage
-- **Certificate Management**: Automated SSL certificate generation and management
+### 🔐 Authentication & Security
+- **Admin Login Interface**: Secure login form with validation
+- **Protected Routes**: Route-based access control using `ProtectedRoute` component
+- **Session Persistence**: Maintains login state across browser sessions
+- **Role-based Access**: Supports admin role verification
 
-### Authentication & Authorization
-- **Strong Password Policies**: Minimum 12 characters with complexity requirements
-- **JWT Token Security**: Secure session management with token expiration
-- **Role-Based Access Control**: Admin, Staff, and User roles with appropriate permissions
-- **Account Lockout**: Protection against brute force attacks
+### 🎛️ Admin Dashboard
+- **System Status Monitoring**: Real-time WiFi capping system status
+- **User Management**: View connected users and active connections
+- **Data Usage Tracking**: Monitor daily bandwidth consumption
+- **Bandwidth Control**: Current bandwidth limit display
+- **Quick Actions**: Easy access to system management functions
+- **Activity Logs**: Recent system activity and events
 
-### Policy Enforcement
-- **Real-time Bandwidth Management**: Dynamic allocation based on user groups and time
-- **Content Filtering**: Category-based filtering (adult, gambling, malware, etc.)
-- **Time-based Restrictions**: Different policies for peak/off-peak hours
-- **Fair Usage Policies**: Automatic throttling for excessive usage
+### 💻 Technical Features
+- **Responsive Design**: Mobile-friendly interface
+- **TypeScript**: Full type safety and better development experience
+- **React Router**: Client-side routing with protection
+- **Context API**: Centralized authentication state management
+- **Modern React**: Hooks and functional components
+- **Testing**: Comprehensive test suite with Jest and React Testing Library
 
-### AUP Compliance
-- **Real-time Monitoring**: Continuous network traffic analysis
-- **Violation Detection**: Automated detection of policy violations
-- **Audit Trails**: Comprehensive logging of all network activities
-- **Compliance Reporting**: Regular reports for institutional review
-
-## 🚀 Quick Start
+## Getting Started
 
 ### Prerequisites
-- Python 3.8+
-- Administrative privileges for network management
-- SSL certificates (self-signed certificates can be auto-generated)
+- Node.js (v16 or higher)
+- npm or yarn
 
 ### Installation
 
-1. **Clone the repository**:
+1. **Clone the repository**
    ```bash
    git clone https://github.com/georgeacquahjunior/Wifi_Capping_NCUK.git
    cd Wifi_Capping_NCUK
    ```
 
-2. **Install dependencies**:
+2. **Install dependencies**
    ```bash
-   pip install -r requirements.txt
+   npm install
    ```
 
-3. **Configure environment**:
+3. **Start the development server**
    ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
+   npm start
    ```
 
-4. **Run security verification**:
-   ```bash
-   python security_verify.py --config production
-   ```
+4. **Open your browser**
+   Navigate to `http://localhost:3000` to access the admin login interface.
 
-5. **Start the application**:
-   ```bash
-   python app.py
-   ```
+### Demo Credentials
+For testing purposes, use these credentials:
+- **Username**: `admin`
+- **Password**: `admin123`
 
-## 📋 Security Verification
+## Available Scripts
 
-The system includes a comprehensive security verification tool that validates:
+- **`npm start`** - Runs the app in development mode
+- **`npm test`** - Launches the test runner
+- **`npm run build`** - Builds the app for production
+- **`npm run eject`** - Ejects from Create React App (one-way operation)
 
-- ✅ **Configuration Security**: SSL/TLS, encryption keys, database settings
-- ✅ **Encryption Implementation**: End-to-end encryption verification
-- ✅ **Access Control**: Authentication and authorization mechanisms
-- ✅ **Policy Enforcement**: Bandwidth and content filtering validation
-- ✅ **AUP Compliance**: Monitoring and violation detection systems
+## Project Structure
 
-### Running Security Audit
-
-```bash
-# Full security audit for production
-python security_verify.py --config production
-
-# Generate detailed report
-python security_verify.py --config production --output security_report.txt
-
-# JSON format for automated processing
-python security_verify.py --config production --json --output security_report.json
+```
+src/
+├── components/
+│   ├── ProtectedRoute.tsx      # Route protection component
+│   └── ProtectedRoute.test.tsx # Tests for protected routes
+├── contexts/
+│   └── AuthContext.tsx         # Authentication context and logic
+├── pages/
+│   ├── AdminLogin.tsx          # Admin login page
+│   ├── AdminLogin.css          # Login page styles
+│   ├── AdminLogin.test.tsx     # Login page tests
+│   ├── AdminDashboard.tsx      # Main admin dashboard
+│   └── AdminDashboard.css      # Dashboard styles
+├── types/
+│   └── auth.ts                 # TypeScript type definitions
+├── App.tsx                     # Main app component with routing
+├── App.css                     # Global app styles
+├── index.tsx                   # App entry point
+└── index.css                   # Global styles
 ```
 
-## 🏗️ Architecture
+## Authentication Flow
 
-### Core Components
+1. **Unauthenticated Access**: Users are redirected to `/login` when accessing protected routes
+2. **Login Process**: Users enter credentials on the admin login page
+3. **Validation**: Credentials are validated (currently demo credentials)
+4. **Session Creation**: Successful login creates a session stored in localStorage
+5. **Protected Access**: Authenticated users can access admin dashboard
+6. **Logout**: Users can logout, clearing the session and redirecting to login
 
-1. **Security Module** (`src/wifi_capping/security/`)
-   - Encryption management (Fernet/AES-256)
-   - Password hashing (bcrypt)
-   - JWT token management
-   - SSL certificate handling
+## Component Details
 
-2. **Policy Engine** (`src/wifi_capping/policy/`)
-   - Bandwidth management
-   - Time-based access controls
-   - User group management
-   - Traffic shaping and QoS
+### ProtectedRoute Component
+- Checks authentication status before rendering protected content
+- Redirects unauthenticated users to login page
+- Supports role-based access control
+- Shows loading state during authentication checks
+- Displays access denied for insufficient permissions
 
-3. **AUP Monitor** (`src/wifi_capping/aup/`)
-   - Content filtering
-   - Violation detection
-   - Compliance reporting
-   - Audit logging
+### AuthContext
+- Manages global authentication state
+- Provides login/logout functionality
+- Handles session persistence
+- Uses React useReducer for state management
+- Simulates API authentication (ready for backend integration)
 
-4. **Web Interface** (`src/wifi_capping/web/`)
-   - Administrative dashboard
-   - Policy management
-   - Monitoring and reporting
-   - User authentication
+### Admin Dashboard
+- Displays system status and metrics
+- Shows connected users and data usage
+- Provides quick action buttons for system management
+- Displays recent activity log
+- Responsive grid layout
 
-## 🔧 Configuration
+## Customization
 
-### Environment Variables
-
-Key security configuration options:
-
-```bash
-# Security Configuration
-SECRET_KEY=your-secret-key-here-change-this
-JWT_SECRET_KEY=your-jwt-secret-key-here-change-this
-ENCRYPTION_KEY=your-encryption-key-here-change-this
-
-# SSL/TLS Configuration
-SSL_CERT_PATH=/etc/ssl/certs/wifi-capping.crt
-SSL_KEY_PATH=/etc/ssl/private/wifi-capping.key
-SSL_REQUIRED=true
-
-# Database Security
-DATABASE_URL=sqlite:///wifi_capping.db
-DATABASE_ENCRYPTION=true
-
-# AUP Configuration
-AUP_ENABLED=true
-CONTENT_FILTERING=true
-AUDIT_LOGGING=true
+### Adding New Protected Routes
+```typescript
+<Route
+  path="/new-admin-page"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <NewAdminPage />
+    </ProtectedRoute>
+  }
+/>
 ```
 
-### Default User Groups
+### Integrating with Backend
+Replace the demo authentication in `AuthContext.tsx` with actual API calls:
 
-The system comes with pre-configured user groups:
-
-- **Students**: 10MB/s download, 5MB/s upload, time restrictions
-- **Staff**: 50MB/s download, 20MB/s upload, full access
-- **Guests**: 2MB/s download, 1MB/s upload, limited hours
-
-## 📊 Monitoring & Reporting
-
-### Real-time Dashboard
-- Active session monitoring
-- Bandwidth usage analytics
-- Security event tracking
-- Policy compliance metrics
-
-### API Endpoints
-
-Core API endpoints for integration:
-
-```bash
-# Policy evaluation
-POST /api/network/evaluate
-
-# Session management
-POST /api/network/session/start
-POST /api/network/session/{id}/update
-POST /api/network/session/{id}/end
-
-# AUP compliance
-POST /api/aup/check-content
-POST /api/aup/report-activity
-
-# System health
-GET /api/health
+```typescript
+const login = async (username: string, password: string): Promise<boolean> => {
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    
+    if (response.ok) {
+      const user = await response.json();
+      localStorage.setItem('auth_user', JSON.stringify(user));
+      dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+      return true;
+    }
+    return false;
+  } catch (error) {
+    return false;
+  }
+};
 ```
 
-## 🛡️ Security Best Practices
+## Security Considerations
 
-### For Administrators
+- Currently uses demo credentials for development
+- Session data stored in localStorage (consider httpOnly cookies for production)
+- No password encryption (implement proper authentication for production)
+- No CSRF protection (add for production use)
+- No rate limiting on login attempts (implement for production)
 
-1. **Regular Security Audits**: Run `security_verify.py` monthly
-2. **Key Rotation**: Update encryption keys quarterly
-3. **Certificate Management**: Monitor SSL certificate expiration
-4. **Log Monitoring**: Review security events and violations daily
-5. **Updates**: Keep system and dependencies updated
+## Future Enhancements
 
-### For Security Specialists
+- [ ] Backend API integration
+- [ ] Real user management system
+- [ ] Advanced bandwidth controls
+- [ ] Detailed reporting and analytics
+- [ ] Email notifications
+- [ ] User registration system
+- [ ] Multi-factor authentication
+- [ ] Audit logging
+- [ ] API documentation
+- [ ] Docker containerization
 
-1. **Penetration Testing**: Conduct quarterly security assessments
-2. **Compliance Verification**: Ensure AUP compliance monitoring is active
-3. **Incident Response**: Test incident response procedures regularly
-4. **Backup Security**: Verify encrypted backups and recovery procedures
-
-## 📚 Documentation
-
-- [Security Documentation](docs/SECURITY.md) - Comprehensive security guide
-- [API Documentation](docs/API.md) - Complete API reference
-- [Deployment Guide](docs/DEPLOYMENT.md) - Production deployment instructions
-
-## 🧪 Testing
-
-Run the security test suite:
-
-```bash
-# Install test dependencies
-pip install pytest pytest-cov
-
-# Run security tests
-python -m pytest tests/test_security.py -v
-
-# Generate coverage report
-python -m pytest tests/ --cov=wifi_capping --cov-report=html
-```
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Run security tests
-4. Submit a pull request with security verification results
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Create a Pull Request
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Support
+## Support
 
-For security-related issues or questions:
-- Security Team: security@ncuk.ac.uk
-- Technical Support: support@ncuk.ac.uk
-- Emergency Contact: +44 (0) 161 XXX XXXX
-
-## 🏆 Security Compliance
-
-- ✅ GDPR compliant for student data protection
-- ✅ ISO 27001 information security management alignment
-- ✅ NIST cybersecurity framework compliance
-- ✅ Educational institution security requirements
-- ✅ Network security best practices implementation
-
----
-
-**Note**: This system is designed for educational institutions and includes appropriate security measures for handling student and staff network access. All security features have been verified and tested for production deployment.
+For support or questions, please open an issue on the GitHub repository.
