@@ -1,13 +1,71 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wifi Capping NCUK</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Capping - NCUK</title>
+    
+    <!-- Content Security Policy Meta Tag -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'nonce-{SCRIPT_NONCE}';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: https:;
+        font-src 'self';
+        connect-src 'self';
+        frame-ancestors 'none';
+        base-uri 'self';
+        form-action 'self';
+        object-src 'none';
+    ">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>WiFi Capping System - NCUK</h1>
+            <p>North Consortium UK WiFi Management</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <section class="dashboard">
+                <h2>WiFi Usage Dashboard</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Current Usage</h3>
+                        <p id="current-usage">Loading...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Data Cap</h3>
+                        <p id="data-cap">Loading...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Remaining</h3>
+                        <p id="remaining-data">Loading...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="controls">
+                <h2>WiFi Controls</h2>
+                <div class="control-buttons">
+                    <button id="refresh-stats" class="btn btn-primary">Refresh Stats</button>
+                    <button id="set-cap" class="btn btn-secondary">Set Data Cap</button>
+                    <button id="reset-usage" class="btn btn-warning">Reset Usage</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 NCUK WiFi Capping System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script nonce="{SCRIPT_NONCE}" src="app.js"></script>
+</body>
 </html>
