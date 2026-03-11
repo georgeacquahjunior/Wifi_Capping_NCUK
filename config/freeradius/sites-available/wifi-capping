@@ -1,0 +1,124 @@
+# WiFi Capping Virtual Server Configuration
+# /etc/freeradius/3.0/sites-available/wifi-capping
+
+server wifi-capping {
+    listen {
+        type = auth
+        ipaddr = *
+        port = 1812
+        limit {
+            max_connections = 16
+            lifetime = 0
+            idle_timeout = 30
+        }
+    }
+
+    listen {
+        type = acct
+        ipaddr = *
+        port = 1813
+        limit {
+            max_connections = 16
+            lifetime = 0
+            idle_timeout = 30
+        }
+    }
+
+    # Authorization section
+    authorize {
+        # Filter username and check for valid format
+        filter_username
+        
+        # Check if this is a test user
+        if (&User-Name =~ /^test/) {
+            update control {
+                Auth-Type := Rest
+            }
+        }
+        else {
+            # Use REST module to validate against our backend
+            rest
+        }
+        
+        # Set expiration and session timeout
+        expiration
+        logintime
+        
+        # Check for simultaneous use
+        pap
+    }
+
+    # Authentication section
+    authenticate {
+        Auth-Type Rest {
+            rest
+        }
+        
+        Auth-Type PAP {
+            pap
+        }
+    }
+
+    # Pre-accounting section
+    preacct {
+        preprocess
+        acct_unique
+        suffix
+        files
+    }
+
+    # Accounting section
+    accounting {
+        # Use REST module to send accounting to our backend
+        rest
+        
+        # Log accounting data
+        detail
+        
+        # Store in radutmp for session tracking
+        unix
+        
+        # Store accounting in SQL
+        # sql
+        
+        # Execute external script if needed
+        exec
+        
+        attr_filter.accounting_response
+    }
+
+    # Session section
+    session {
+        radutmp
+    }
+
+    # Post-authentication section
+    post-auth {
+        # Reply with session timeout and other attributes
+        update reply {
+            Session-Timeout := 3600
+            Idle-Timeout := 600
+        }
+        
+        # Log authentication
+        exec
+        remove_reply_message_if_eap
+        
+        Post-Auth-Type REJECT {
+            attr_filter.access_reject
+            eap
+            remove_reply_message_if_eap
+        }
+    }
+
+    # Pre-proxy section
+    pre-proxy {
+        attr_filter.pre-proxy
+    }
+
+    # Post-proxy section
+    post-proxy {
+        attr_filter.post-proxy
+        eap
+    }
+}
