@@ -1,0 +1,82 @@
+#
+# FreeRADIUS Users File
+# This file contains user definitions with authentication and authorization attributes
+# Format: username Auth-Type := type, attribute = value, attribute = value
+#
+
+# Test Users for NCUK WiFi Capping System
+
+# Student user with 5GB daily limit
+student1 Cleartext-Password := "password123"
+    Mikrotik-Rate-Limit = "10M/10M 20M/20M 5G/5G 300/300",
+    Reply-Message = "Welcome to NCUK WiFi - Student Account",
+    Session-Timeout = 28800,
+    Idle-Timeout = 1800,
+    Service-Type = Framed-User,
+    Framed-Protocol = PPP,
+    Acct-Interim-Interval = 300
+
+# Student user with 2GB daily limit (basic plan)
+student2 Cleartext-Password := "student2pass"
+    Mikrotik-Rate-Limit = "5M/5M 10M/10M 2G/2G 200/200",
+    Reply-Message = "Welcome to NCUK WiFi - Basic Student Account",
+    Session-Timeout = 14400,
+    Idle-Timeout = 1800,
+    Service-Type = Framed-User,
+    Framed-Protocol = PPP,
+    Acct-Interim-Interval = 300
+
+# Faculty user with 20GB daily limit
+faculty1 Cleartext-Password := "faculty123"
+    Mikrotik-Rate-Limit = "50M/50M 100M/100M 20G/20G 1000/1000",
+    Reply-Message = "Welcome to NCUK WiFi - Faculty Account",
+    Session-Timeout = 43200,
+    Idle-Timeout = 3600,
+    Service-Type = Framed-User,
+    Framed-Protocol = PPP,
+    Acct-Interim-Interval = 300
+
+# Guest user with limited access (500MB, 2 hours)
+guest1 Cleartext-Password := "guest2024"
+    Mikrotik-Rate-Limit = "2M/2M 4M/4M 500M/500M 50/50",
+    Reply-Message = "Welcome to NCUK WiFi - Guest Access",
+    Session-Timeout = 7200,
+    Idle-Timeout = 900,
+    Service-Type = Framed-User,
+    Framed-Protocol = PPP,
+    Acct-Interim-Interval = 600
+
+# Admin user with unlimited access
+admin1 Cleartext-Password := "admin_ncuk_2024"
+    Reply-Message = "Welcome to NCUK WiFi - Administrator",
+    Session-Timeout = 86400,
+    Idle-Timeout = 7200,
+    Service-Type = Administrative-User,
+    Framed-Protocol = PPP,
+    Acct-Interim-Interval = 300
+
+# Test user for debugging (no limits)
+testuser Cleartext-Password := "testpass"
+    Reply-Message = "NCUK WiFi Test Account - No Limits",
+    Service-Type = Framed-User,
+    Framed-Protocol = PPP
+
+# Default user (catches all unmatched users and denies access)
+DEFAULT Auth-Type := Reject
+    Reply-Message = "Access denied. Please contact IT support."
+
+#
+# User Groups and Attributes Legend:
+#
+# Mikrotik-Rate-Limit format: rx-rate[/tx-rate] [rx-burst-rate[/tx-burst-rate]] [rx-burst-threshold[/tx-burst-threshold]] [rx-burst-time[/tx-burst-time]]
+# 
+# Session-Timeout: Maximum session duration in seconds
+# Idle-Timeout: Maximum idle time before disconnection in seconds
+# Acct-Interim-Interval: Accounting update interval in seconds
+#
+# Data limits are enforced through Mikrotik-Rate-Limit attribute
+# Format examples:
+# - "10M/10M" = 10Mbps download/upload
+# - "5G/5G" = 5GB data limit
+# - "300/300" = 300 second burst time
+#

@@ -1,0 +1,92 @@
+#
+# NCUK WiFi Capping Policies
+# This file contains policies for bandwidth management and user restrictions
+#
+
+# Policy for student accounts
+policy student_policy {
+    # Check if user has exceeded daily data limit
+    if (&session-state:Daily-Data-Usage > &reply:Daily-Data-Limit) {
+        update reply {
+            Reply-Message := "Daily data limit exceeded. Please try again tomorrow."
+        }
+        reject
+    }
+    
+    # Set bandwidth limits for students
+    update reply {
+        Mikrotik-Rate-Limit := "10M/10M 20M/20M 5G/5G 300/300"
+        Session-Timeout := 28800
+        Idle-Timeout := 1800
+    }
+}
+
+# Policy for faculty accounts  
+policy faculty_policy {
+    # Higher limits for faculty
+    update reply {
+        Mikrotik-Rate-Limit := "50M/50M 100M/100M 20G/20G 1000/1000"
+        Session-Timeout := 43200
+        Idle-Timeout := 3600
+    }
+}
+
+# Policy for guest accounts
+policy guest_policy {
+    # Restrictive limits for guests
+    update reply {
+        Mikrotik-Rate-Limit := "2M/2M 4M/4M 500M/500M 50/50"
+        Session-Timeout := 7200
+        Idle-Timeout := 900
+    }
+}
+
+# Time-based access policy
+policy time_based_access {
+    # Allow access only during specified hours
+    if ("%{tolower:%{control:Login-Time}}" == "al0800-2200") {
+        if (("%l" < "0800") || ("%l" > "2200")) {
+            update reply {
+                Reply-Message := "Access restricted to 08:00-22:00"
+            }
+            reject
+        }
+    }
+}
+
+# Data usage tracking policy
+policy track_data_usage {
+    # Track daily data usage (simplified version)
+    update session-state {
+        Daily-Data-Start := "%{sql:SELECT DATE(NOW())}"
+    }
+    
+    # Reset counters daily
+    if (&session-state:Last-Reset-Date != &session-state:Daily-Data-Start) {
+        update session-state {
+            Daily-Data-Usage := 0
+            Last-Reset-Date := &session-state:Daily-Data-Start
+        }
+    }
+}
+
+# Bandwidth shaping based on time of day
+policy time_based_shaping {
+    # Reduce bandwidth during peak hours (9 AM - 5 PM)
+    if (("%l" >= "0900") && ("%l" <= "1700")) {
+        update reply {
+            Mikrotik-Rate-Limit := "5M/5M 10M/10M"
+        }
+    }
+}
+
+# Device limit policy
+policy device_limit {
+    # Limit number of concurrent devices per user
+    if (&session-state:Device-Count > 3) {
+        update reply {
+            Reply-Message := "Maximum device limit (3) exceeded"
+        }
+        reject
+    }
+}
