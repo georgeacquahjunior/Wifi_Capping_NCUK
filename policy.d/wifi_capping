@@ -1,0 +1,186 @@
+# WiFi capping policies for FreeRADIUS
+# These policies implement bandwidth management and session control
+
+# Filter username policy
+filter_username {
+    # Remove dangerous characters from username
+    if (&User-Name =~ /([^a-zA-Z0-9@_.-])/) {
+        update request {
+            &User-Name := "%{1}"
+        }
+        
+        # Log suspicious usernames
+        update control {
+            &Module-Failure-Message := "Filtered suspicious characters from username"
+        }
+    }
+    
+    # Convert to lowercase for consistency
+    update request {
+        &User-Name := "%{tolower:%{User-Name}}"
+    }
+    
+    ok
+}
+
+# Bandwidth policy based on user type
+bandwidth_policy {
+    # Set bandwidth based on NCUK-User-Category
+    if (&reply:NCUK-User-Category == "Student") {
+        update reply {
+            &Filter-Id := "bandwidth_20mbps"
+            &Session-Timeout := 7200
+            &Reply-Message := "Student bandwidth: 20Mbps, 2h session"
+        }
+    }
+    elsif (&reply:NCUK-User-Category == "Staff") {
+        update reply {
+            &Filter-Id := "bandwidth_50mbps" 
+            &Session-Timeout := 14400
+            &Reply-Message := "Staff bandwidth: 50Mbps, 4h session"
+        }
+    }
+    elsif (&reply:NCUK-User-Category == "Guest") {
+        update reply {
+            &Filter-Id := "bandwidth_5mbps"
+            &Session-Timeout := 1800
+            &Reply-Message := "Guest bandwidth: 5Mbps, 30min session"
+        }
+    }
+    elsif (&reply:NCUK-User-Category == "Admin") {
+        update reply {
+            &Filter-Id := "bandwidth_unlimited"
+            &Session-Timeout := 86400
+            &Reply-Message := "Admin access: Unlimited"
+        }
+    }
+    else {
+        # Default bandwidth for unclassified users
+        update reply {
+            &Filter-Id := "bandwidth_10mbps"
+            &Session-Timeout := 3600
+            &Reply-Message := "Default bandwidth: 10Mbps, 1h session"
+        }
+    }
+    
+    ok
+}
+
+# Data usage monitoring policy
+data_usage_policy {
+    # Check if interim update contains data usage
+    if (&Acct-Status-Type == Interim-Update) {
+        # Calculate total data usage in MB
+        if (&Acct-Input-Octets && &Acct-Output-Octets) {
+            update control {
+                &Tmp-Integer-0 := "%{expr:(%{Acct-Input-Octets} + %{Acct-Output-Octets}) / 1048576}"
+            }
+            
+            # Check daily data limit (example: 1GB = 1024 MB)
+            if (&control:Tmp-Integer-0 > 1024) {
+                # Data limit exceeded - prepare for CoA disconnect
+                update control {
+                    &Module-Failure-Message := "Daily data limit exceeded: %{control:Tmp-Integer-0}MB"
+                    &Response-Packet-Type := CoA-Request
+                    &Disconnect-Cause := "Data limit exceeded"
+                }
+                
+                # Log the violation
+                linelog_data_limit
+                
+                # This would trigger a CoA disconnect in a real implementation
+                noop
+            }
+            # Warning at 80% of limit
+            elsif (&control:Tmp-Integer-0 > 819) {
+                update control {
+                    &Module-Success-Message := "Warning: 80% of daily data limit used"
+                }
+            }
+        }
+    }
+    
+    ok
+}
+
+# Session time monitoring policy
+session_time_policy {
+    # Check session time limits during interim updates
+    if (&Acct-Status-Type == Interim-Update) {
+        if (&Acct-Session-Time) {
+            # Get remaining session time
+            if (&Session-Timeout) {
+                update control {
+                    &Tmp-Integer-1 := "%{expr:%{Session-Timeout} - %{Acct-Session-Time}}"
+                }
+                
+                # If less than 5 minutes remaining, send warning
+                if (&control:Tmp-Integer-1 < 300) {
+                    update control {
+                        &Module-Success-Message := "Session expires in %{control:Tmp-Integer-1} seconds"
+                    }
+                }
+                
+                # If session has exceeded timeout, trigger disconnect
+                if (&control:Tmp-Integer-1 <= 0) {
+                    update control {
+                        &Module-Failure-Message := "Session timeout exceeded"
+                        &Response-Packet-Type := CoA-Request
+                        &Disconnect-Cause := "Session timeout"
+                    }
+                    
+                    # Log timeout
+                    linelog_session_timeout
+                }
+            }
+        }
+    }
+    
+    ok
+}
+
+# CoA disconnect trigger policy
+coa_disconnect_trigger {
+    # This policy would be called to initiate a CoA disconnect
+    # In a real implementation, this would:
+    # 1. Lookup the user's current session details
+    # 2. Send a CoA Disconnect-Request to the NAS
+    # 3. Log the disconnect reason
+    
+    update control {
+        &Module-Success-Message := "CoA disconnect triggered for user: %{User-Name}"
+    }
+    
+    if (&control:Disconnect-Cause) {
+        update control {
+            &Module-Success-Message += ", Reason: %{control:Disconnect-Cause}"
+        }
+    }
+    
+    # Log the disconnect
+    linelog_coa_disconnect
+    
+    ok
+}
+
+# Logging policies
+linelog_data_limit {
+    update control {
+        &Module-Success-Message := "DATA_LIMIT_EXCEEDED: User=%{User-Name}, Session=%{Acct-Session-Id}, Usage=%{control:Tmp-Integer-0}MB"
+    }
+    ok
+}
+
+linelog_session_timeout {
+    update control {
+        &Module-Success-Message := "SESSION_TIMEOUT: User=%{User-Name}, Session=%{Acct-Session-Id}, Duration=%{Acct-Session-Time}s"
+    }
+    ok
+}
+
+linelog_coa_disconnect {
+    update control {
+        &Module-Success-Message := "COA_DISCONNECT: User=%{User-Name}, Reason=%{control:Disconnect-Cause}"
+    }
+    ok
+}
