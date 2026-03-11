@@ -1,429 +1,229 @@
-from fastapi import FastAPI, HTTPException, Depends, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, ValidationError
-from datetime import datetime, timedelta, timezone
-from typing import Optional, Dict, Any
-import jwt
+#!/usr/bin/env python3
+"""
+WiFi Capping NCUK - Main Application
+Command-line interface for the WiFi capping system with freeRADIUS integration
+"""
+
+import sys
+import signal
 import logging
-import traceback
-from passlib.context import CryptContext
-import os
-from dotenv import load_dotenv
+import click
+from pathlib import Path
 
-# Load environment variables
-load_dotenv()
+# Add src directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+from src.wifi_capping.utils.config import Config, setup_logging
+from src.wifi_capping.capping import WifiCappingService
+from src.wifi_capping.web import run_web_server
+
+
 logger = logging.getLogger(__name__)
 
-# Security configuration
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# Security scheme
-security = HTTPBearer()
-
-# Initialize FastAPI app
-app = FastAPI(
-    title="WiFi Capping System",
-    description="A robust WiFi usage management system with token authentication",
-    version="1.0.0"
-)
-
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Pydantic models
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-    expires_in: int
-
-class TokenData(BaseModel):
-    username: Optional[str] = None
-
-class User(BaseModel):
-    username: str
-    email: Optional[str] = None
-    full_name: Optional[str] = None
-    disabled: Optional[bool] = None
-
-class UserInDB(User):
-    hashed_password: str
-
-class UserCreate(BaseModel):
-    username: str
-    password: str
-    email: Optional[str] = None
-    full_name: Optional[str] = None
-
-class UserLogin(BaseModel):
-    username: str
-    password: str
-
-class WiFiUsage(BaseModel):
-    user_id: str
-    bytes_used: int
-    session_start: datetime
-    session_end: Optional[datetime] = None
-
-class WiFiQuota(BaseModel):
-    user_id: str
-    daily_limit_mb: int
-    monthly_limit_mb: int
-
-class ErrorResponse(BaseModel):
-    error: str
-    message: str
-    timestamp: datetime
-    request_id: Optional[str] = None
+@click.group()
+@click.option('--config', '-c', help='Path to configuration file (.env)')
+@click.option('--verbose', '-v', is_flag=True, help='Enable verbose logging')
+@click.pass_context
+def cli(ctx, config, verbose):
+    """WiFi Capping NCUK - Secure freeRADIUS Integration System"""
     
-    model_config = {"json_encoders": {datetime: lambda v: v.isoformat()}}
-
-# Custom Exception Classes
-class TokenExpiredError(Exception):
-    pass
-
-class InvalidTokenError(Exception):
-    pass
-
-class UserNotFoundError(Exception):
-    pass
-
-class QuotaExceededError(Exception):
-    pass
-
-class CustomValidationError(Exception):
-    def __init__(self, message: str, details: Dict[str, Any] = None):
-        self.message = message
-        self.details = details or {}
-        super().__init__(self.message)
-
-# Mock database (replace with real database in production)
-fake_users_db = {
-    "testuser": {
-        "username": "testuser",
-        "full_name": "Test User",
-        "email": "test@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",  # "secret"
-        "disabled": False,
-    }
-}
-
-fake_wifi_usage_db = []
-fake_quota_db = {
-    "testuser": {
-        "user_id": "testuser",
-        "daily_limit_mb": 1024,
-        "monthly_limit_mb": 10240
-    }
-}
-
-# Utility functions
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
-
-def get_user(username: str):
-    if username in fake_users_db:
-        user_dict = fake_users_db[username]
-        return UserInDB(**user_dict)
-    return None
-
-def authenticate_user(username: str, password: str):
-    user = get_user(username)
-    if not user:
-        return False
-    if not verify_password(password, user.hashed_password):
-        return False
-    return user
-
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-# Error handlers
-@app.exception_handler(TokenExpiredError)
-async def token_expired_handler(request, exc):
-    logger.warning(f"Token expired for request: {request.url}")
-    return JSONResponse(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        content={
-            "error": "TOKEN_EXPIRED",
-            "message": "Access token has expired. Please login again.",
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }
-    )
-
-@app.exception_handler(InvalidTokenError)
-async def invalid_token_handler(request, exc):
-    logger.warning(f"Invalid token for request: {request.url}")
-    return JSONResponse(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        content={
-            "error": "INVALID_TOKEN",
-            "message": "Invalid access token provided.",
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }
-    )
-
-@app.exception_handler(UserNotFoundError)
-async def user_not_found_handler(request, exc):
-    logger.warning(f"User not found for request: {request.url}")
-    return JSONResponse(
-        status_code=status.HTTP_404_NOT_FOUND,
-        content={
-            "error": "USER_NOT_FOUND",
-            "message": "User not found in the system.",
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }
-    )
-
-@app.exception_handler(QuotaExceededError)
-async def quota_exceeded_handler(request, exc):
-    logger.warning(f"Quota exceeded for request: {request.url}")
-    return JSONResponse(
-        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-        content={
-            "error": "QUOTA_EXCEEDED",
-            "message": "WiFi usage quota has been exceeded.",
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }
-    )
-
-@app.exception_handler(CustomValidationError)
-async def validation_error_handler(request, exc):
-    logger.warning(f"Validation error for request: {request.url} - {exc.message}")
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={
-            "error": "VALIDATION_ERROR",
-            "message": exc.message,
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }
-    )
-
-@app.exception_handler(Exception)
-async def general_exception_handler(request, exc):
-    logger.error(f"Unexpected error for request: {request.url} - {str(exc)}")
-    logger.error(traceback.format_exc())
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "error": "INTERNAL_SERVER_ERROR",
-            "message": "An unexpected error occurred. Please try again later.",
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }
-    )
-
-# Token validation dependency
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    try:
-        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise InvalidTokenError()
-        token_data = TokenData(username=username)
-    except jwt.ExpiredSignatureError:
-        raise TokenExpiredError()
-    except (jwt.DecodeError, jwt.InvalidTokenError):
-        raise InvalidTokenError()
+    # Initialize configuration
+    ctx.ensure_object(dict)
     
-    user = get_user(username=token_data.username)
-    if user is None:
-        raise UserNotFoundError()
-    return user
-
-# Routes
-@app.get("/", tags=["Health"])
-async def root():
-    """Health check endpoint"""
-    return {
-        "message": "WiFi Capping System API",
-        "status": "healthy",
-        "timestamp": datetime.now(timezone.utc)
-    }
-
-@app.post("/auth/login", response_model=Token, tags=["Authentication"])
-async def login_for_access_token(user_credentials: UserLogin):
-    """
-    Authenticate user and return access token with expiry
-    """
     try:
-        user = authenticate_user(user_credentials.username, user_credentials.password)
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect username or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
-            data={"sub": user.username}, expires_delta=access_token_expires
-        )
+        ctx.obj['config'] = Config(config)
         
-        logger.info(f"User {user.username} successfully authenticated")
-        
-        return Token(
-            access_token=access_token,
-            token_type="bearer",
-            expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Login error for user {user_credentials.username}: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Authentication service temporarily unavailable"
-        )
-
-@app.get("/auth/me", response_model=User, tags=["Authentication"])
-async def read_users_me(current_user: User = Depends(get_current_user)):
-    """
-    Get current user information
-    """
-    return current_user
-
-@app.get("/wifi/usage", tags=["WiFi Management"])
-async def get_wifi_usage(current_user: User = Depends(get_current_user)):
-    """
-    Get current user's WiFi usage statistics
-    """
-    try:
-        user_usage = [usage for usage in fake_wifi_usage_db if usage.get("user_id") == current_user.username]
-        total_bytes = sum(usage.get("bytes_used", 0) for usage in user_usage)
-        
-        return {
-            "user_id": current_user.username,
-            "total_bytes_used": total_bytes,
-            "total_mb_used": round(total_bytes / 1024 / 1024, 2),
-            "sessions": len(user_usage),
-            "last_updated": datetime.now(timezone.utc)
-        }
-    except Exception as e:
-        logger.error(f"Error getting WiFi usage for user {current_user.username}: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Unable to retrieve usage data"
-        )
-
-@app.get("/wifi/quota", tags=["WiFi Management"])
-async def get_wifi_quota(current_user: User = Depends(get_current_user)):
-    """
-    Get current user's WiFi quota information
-    """
-    try:
-        quota = fake_quota_db.get(current_user.username)
-        if not quota:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No quota found for user"
-            )
-        
-        return quota
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error getting WiFi quota for user {current_user.username}: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Unable to retrieve quota information"
-        )
-
-@app.post("/wifi/usage", tags=["WiFi Management"])
-async def record_wifi_usage(usage: WiFiUsage, current_user: User = Depends(get_current_user)):
-    """
-    Record WiFi usage for the current user
-    """
-    try:
-        # Validate user can only record their own usage
-        if usage.user_id != current_user.username:
-            raise CustomValidationError(
-                "Cannot record usage for another user",
-                {"provided_user": usage.user_id, "authenticated_user": current_user.username}
-            )
-        
-        # Check quota before recording
-        quota = fake_quota_db.get(current_user.username)
-        if quota:
-            current_usage = sum(u.get("bytes_used", 0) for u in fake_wifi_usage_db if u.get("user_id") == current_user.username)
-            daily_limit_bytes = quota["daily_limit_mb"] * 1024 * 1024
+        # Override log level if verbose
+        if verbose:
+            ctx.obj['config'].log_level = 'DEBUG'
             
-            if current_usage + usage.bytes_used > daily_limit_bytes:
-                raise QuotaExceededError()
+        setup_logging(ctx.obj['config'])
+        logger.info("WiFi Capping NCUK system initialized")
         
-        # Record usage
-        usage_record = {
-            "user_id": usage.user_id,
-            "bytes_used": usage.bytes_used,
-            "session_start": usage.session_start,
-            "session_end": usage.session_end,
-            "recorded_at": datetime.now(timezone.utc)
-        }
-        
-        fake_wifi_usage_db.append(usage_record)
-        logger.info(f"Recorded {usage.bytes_used} bytes usage for user {current_user.username}")
-        
-        return {
-            "message": "Usage recorded successfully",
-            "usage_id": len(fake_wifi_usage_db),
-            "timestamp": datetime.now(timezone.utc)
-        }
-        
-    except (QuotaExceededError, CustomValidationError):
-        raise
     except Exception as e:
-        logger.error(f"Error recording WiFi usage for user {current_user.username}: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Unable to record usage data"
-        )
+        click.echo(f"Configuration error: {str(e)}", err=True)
+        sys.exit(1)
 
-@app.get("/health", tags=["Health"])
-async def health_check():
-    """
-    Comprehensive health check endpoint
-    """
+
+@cli.command()
+@click.pass_context
+def start(ctx):
+    """Start the WiFi capping service with web interface"""
+    
+    config = ctx.obj['config']
+    
+    def signal_handler(signum, frame):
+        logger.info("Received shutdown signal")
+        sys.exit(0)
+    
+    # Setup signal handlers
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
     try:
-        return {
-            "status": "healthy",
-            "timestamp": datetime.now(timezone.utc),
-            "version": "1.0.0",
-            "services": {
-                "database": "connected",  # Mock status
-                "authentication": "operational",
-                "wifi_monitoring": "active"
-            }
-        }
+        logger.info("Starting WiFi capping service...")
+        click.echo("Starting WiFi Capping NCUK service...")
+        click.echo(f"Web interface will be available at http://{config.flask_host}:{config.flask_port}")
+        
+        # Start web server (this will also start the WiFi service)
+        run_web_server(config)
+        
     except Exception as e:
-        logger.error(f"Health check failed: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Service health check failed"
+        logger.error(f"Service start error: {str(e)}")
+        click.echo(f"Error starting service: {str(e)}", err=True)
+        sys.exit(1)
+
+
+@cli.command()
+@click.pass_context
+def test_radius(ctx):
+    """Test connection to freeRADIUS server"""
+    
+    config = ctx.obj['config']
+    
+    try:
+        from src.wifi_capping.radius import RadiusClient
+        
+        click.echo("Testing RADIUS server connection...")
+        
+        radius_client = RadiusClient(config)
+        
+        if radius_client.test_connection():
+            click.echo("✓ RADIUS server connection successful", fg='green')
+            
+            # Test authentication with dummy credentials
+            click.echo("Testing authentication with test credentials...")
+            success, attrs = radius_client.authenticate_user("test", "test")
+            
+            if success:
+                click.echo("✓ Test authentication successful", fg='green')
+                click.echo(f"Attributes received: {attrs}")
+            else:
+                click.echo("ℹ Test authentication failed (expected with dummy credentials)", fg='yellow')
+                
+        else:
+            click.echo("✗ RADIUS server connection failed", fg='red')
+            click.echo("Please check your RADIUS server configuration")
+            
+    except Exception as e:
+        click.echo(f"✗ RADIUS test error: {str(e)}", fg='red')
+
+
+@cli.command()
+@click.option('--username', '-u', prompt=True, help='Username to authenticate')
+@click.option('--password', '-p', prompt=True, hide_input=True, help='Password')
+@click.option('--user-ip', prompt=True, help='User IP address')
+@click.option('--nas-ip', prompt=True, help='NAS IP address')
+@click.option('--nas-port', type=int, default=0, help='NAS port number')
+@click.option('--bandwidth-limit', type=int, help='Bandwidth limit in MB')
+@click.pass_context
+def authenticate(ctx, username, password, user_ip, nas_ip, nas_port, bandwidth_limit):
+    """Authenticate a user and start a session"""
+    
+    config = ctx.obj['config']
+    
+    try:
+        service = WifiCappingService(config)
+        service.start()
+        
+        click.echo(f"Authenticating user '{username}'...")
+        
+        success, session_id = service.authenticate_and_start_session(
+            username, password, user_ip, nas_ip, nas_port, bandwidth_limit
         )
+        
+        if success:
+            click.echo(f"✓ Authentication successful!", fg='green')
+            click.echo(f"Session ID: {session_id}")
+            click.echo(f"Bandwidth limit: {bandwidth_limit or config.default_bandwidth_limit_mb} MB")
+        else:
+            click.echo("✗ Authentication failed", fg='red')
+            
+        service.stop()
+        
+    except Exception as e:
+        click.echo(f"✗ Authentication error: {str(e)}", fg='red')
+
+
+@cli.command()
+@click.pass_context
+def status(ctx):
+    """Show system status and configuration"""
+    
+    config = ctx.obj['config']
+    
+    click.echo("WiFi Capping NCUK - System Status")
+    click.echo("=" * 40)
+    click.echo(f"RADIUS Server: {config.radius_host}:{config.radius_auth_port}")
+    click.echo(f"Default Bandwidth Limit: {config.default_bandwidth_limit_mb} MB")
+    click.echo(f"Monitoring Interval: {config.monitoring_interval_seconds} seconds")
+    click.echo(f"Max Session Time: {config.max_session_time_hours} hours")
+    click.echo(f"Web Interface: {config.flask_host}:{config.flask_port}")
+    click.echo(f"Log Level: {config.log_level}")
+    
+    # Test RADIUS connection
+    try:
+        from src.wifi_capping.radius import RadiusClient
+        radius_client = RadiusClient(config)
+        radius_status = "✓ Connected" if radius_client.test_connection() else "✗ Not Connected"
+        click.echo(f"RADIUS Status: {radius_status}")
+    except Exception as e:
+        click.echo(f"RADIUS Status: ✗ Error - {str(e)}")
+
+
+@cli.command()
+@click.pass_context
+def create_config(ctx):
+    """Create a sample configuration file"""
+    
+    config_path = Path(".env")
+    
+    if config_path.exists():
+        if not click.confirm(f"Configuration file {config_path} already exists. Overwrite?"):
+            return
+    
+    # Copy example config
+    example_path = Path(__file__).parent / ".env.example"
+    
+    try:
+        if example_path.exists():
+            import shutil
+            shutil.copy(example_path, config_path)
+            click.echo(f"✓ Configuration file created: {config_path}")
+            click.echo("Please edit the configuration file with your settings:")
+            click.echo("- Set RADIUS_SECRET to your RADIUS server secret")
+            click.echo("- Set FLASK_SECRET_KEY to a secure random key")
+            click.echo("- Configure RADIUS server host and ports")
+        else:
+            # Create basic config if example doesn't exist
+            config_content = """# freeRADIUS Server Configuration
+RADIUS_HOST=127.0.0.1
+RADIUS_AUTH_PORT=1812
+RADIUS_ACCT_PORT=1813
+RADIUS_SECRET=your_radius_secret_here
+
+# WiFi Capping Configuration
+DEFAULT_BANDWIDTH_LIMIT_MB=1000
+MONITORING_INTERVAL_SECONDS=60
+MAX_SESSION_TIME_HOURS=24
+
+# Web Interface Configuration
+FLASK_SECRET_KEY=your_flask_secret_key_here
+FLASK_HOST=0.0.0.0
+FLASK_PORT=5000
+FLASK_DEBUG=false
+
+# Logging Configuration
+LOG_LEVEL=INFO
+LOG_FILE=wifi_capping.log
+"""
+            config_path.write_text(config_content)
+            click.echo(f"✓ Basic configuration file created: {config_path}")
+            
+    except Exception as e:
+        click.echo(f"✗ Error creating configuration file: {str(e)}", err=True)
+
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    cli()

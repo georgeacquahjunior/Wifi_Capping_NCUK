@@ -1,11 +1,7 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-python-multipart==0.0.6
-SQLAlchemy==2.0.23
-pydantic==2.5.0
+pyrad==2.4
+flask==2.3.3
+pycryptodome==3.18.0
 python-dotenv==1.0.0
-pytest==8.4.1
-httpx==0.28.1
+psutil==5.9.5
 requests==2.31.0
+click==8.1.7

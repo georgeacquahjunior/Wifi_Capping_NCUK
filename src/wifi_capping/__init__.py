@@ -1,13 +1,8 @@
 """
-WiFi Capping NCUK - Core Package
-A secure WiFi bandwidth management system for NCUK institutions.
+WiFi Capping NCUK - Secure freeRADIUS Integration
+Main package initialization
 """
 
 __version__ = "1.0.0"
-__author__ = "NCUK Security Team"
-__email__ = "security@ncuk.ac.uk"
-
-from .core.app import create_app
-from .core.config import Config
-
-__all__ = ['create_app', 'Config']
+__author__ = "WiFi Capping NCUK Team"
+__description__ = "Secure WiFi bandwidth capping system with freeRADIUS integration"
