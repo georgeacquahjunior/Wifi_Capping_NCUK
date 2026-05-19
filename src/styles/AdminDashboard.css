@@ -1,0 +1,141 @@
+.dashboard-container {
+  padding: 1.5rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  margin-top: 50px;
+}
+
+.dashboard-container h1 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.search-bar {
+  display: block;
+  margin: 0 auto 1.5rem auto;
+  padding: 0.7rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 300px;
+  max-width: 90%;
+  font-size: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+thead {
+  background: #007bff;
+  color: white;
+}
+
+th, td {
+  padding: 0.9rem;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+tbody tr:hover {
+  background: #f1f1f1;
+}
+
+/* ===== Loading & Error Messages ===== */
+.loading {
+  text-align: center;
+  font-size: 1rem;
+  color: #007bff;
+  margin-top: 1rem;
+}
+
+.error {
+  text-align: center;
+  font-size: 1rem;
+  color: #dc3545;
+  margin-top: 1rem;
+}
+
+/* ===== Status Badges ===== */
+.status {
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status.active {
+  background: #28a745;
+  color: white;
+}
+
+.status.inactive {
+  background: #6c757d;
+  color: white;
+}
+
+.status.capped {
+  background: #dc3545;
+  color: white;
+}
+
+.status.warning {
+  background: #ffc107;
+  color: black;
+}
+
+/* ===== Responsive Table Design ===== */
+@media screen and (max-width: 1024px) {
+  th, td {
+    padding: 0.7rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+    width: 100%;
+  }
+
+  thead {
+    display: none; /* Hide header on small screens */
+  }
+
+  tbody tr {
+    margin-bottom: 1rem;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  tbody td {
+    border: none;
+    padding: 0.5rem 0;
+    position: relative;
+    font-size: 0.9rem;
+    text-align: right;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+  }
+}
