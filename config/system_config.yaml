@@ -1,0 +1,290 @@
+# Network Configuration
+network:
+  # Primary WiFi network settings
+  primary_ssid: "NCUK-WiFi"
+  guest_ssid: "NCUK-Guest"
+  interface: "wlan0"
+  channel: 6
+  country_code: "GB"
+  bridge_interface: "br0"
+
+# Encryption Settings
+encryption:
+  # Default encryption type for new networks
+  default_type: "wpa3-psk"
+  
+  # Certificate settings for enterprise networks
+  certificates:
+    ca_cert_path: "/etc/ssl/certs/ncuk-ca.pem"
+    server_cert_path: "/etc/ssl/certs/ncuk-server.pem"
+    server_key_path: "/etc/ssl/private/ncuk-server.key"
+  
+  # RADIUS server settings for enterprise authentication
+  radius:
+    server: "radius.ncuk.edu"
+    port: 1812
+    accounting_port: 1813
+    secret: "ncuk_radius_secret_2024"
+  
+  # Security policies
+  security_policies:
+    min_password_length: 12
+    require_mixed_case: true
+    require_numbers: true
+    require_special_chars: true
+    key_rotation_days: 90
+
+# Access Control Settings
+access_control:
+  # Default access levels by user role
+  default_access_levels:
+    guest: "restricted"
+    student: "basic"
+    staff: "standard"
+    faculty: "premium"
+    admin: "unlimited"
+  
+  # MAC address filtering
+  mac_filtering:
+    enabled: true
+    default_policy: "deny"  # deny or allow
+    whitelist_enabled: true
+    blacklist_enabled: true
+  
+  # Time-based access control
+  time_restrictions:
+    enabled: true
+    default_rules:
+      student_hours:
+        start_time: "06:00"
+        end_time: "23:00"
+        days: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+      guest_hours:
+        start_time: "08:00"
+        end_time: "20:00"
+        days: ["monday", "tuesday", "wednesday", "thursday", "friday"]
+  
+  # Session management
+  session:
+    max_concurrent_sessions: 3
+    idle_timeout_minutes: 30
+    absolute_timeout_hours: 12
+    guest_session_hours: 24
+
+# Bandwidth Management
+bandwidth:
+  # Interface for traffic control
+  interface: "wlan0"
+  
+  # Default bandwidth limits by access level (Mbps)
+  limits:
+    restricted:
+      download: 2
+      upload: 1
+      priority: 20
+    basic:
+      download: 10
+      upload: 5
+      priority: 40
+    standard:
+      download: 50
+      upload: 25
+      priority: 60
+    premium:
+      download: 200
+      upload: 100
+      priority: 80
+    unlimited:
+      download: -1  # No limit
+      upload: -1
+      priority: 95
+  
+  # Quality of Service (QoS) settings
+  qos:
+    enabled: true
+    traffic_classes:
+      critical:
+        priority: 95
+        protocols: ["icmp", "dns", "dhcp"]
+      high:
+        priority: 80
+        ports: [22, 80, 443, 993, 995]  # SSH, HTTP, HTTPS, IMAPS, POP3S
+      normal:
+        priority: 60
+        default: true
+      low:
+        priority: 40
+        ports: [21, 25, 110, 143]  # FTP, SMTP, POP3, IMAP
+  
+  # Fair usage policy
+  fair_usage:
+    enabled: true
+    daily_quota_gb:
+      guest: 1
+      student: 5
+      staff: 20
+      faculty: 50
+    heavy_user_threshold_gb: 100
+    throttle_heavy_users: true
+    throttle_percentage: 0.7  # Reduce to 70% of normal speed
+
+# Monitoring and Logging
+monitoring:
+  # Enable various monitoring features
+  bandwidth_monitoring: true
+  connection_logging: true
+  security_logging: true
+  performance_monitoring: true
+  
+  # Log file settings
+  log_files:
+    access_log: "/var/log/ncuk-wifi/access.log"
+    security_log: "/var/log/ncuk-wifi/security.log"
+    bandwidth_log: "/var/log/ncuk-wifi/bandwidth.log"
+    error_log: "/var/log/ncuk-wifi/error.log"
+  
+  # Log rotation
+  log_rotation:
+    max_size_mb: 100
+    keep_days: 30
+    compress: true
+  
+  # Monitoring intervals
+  intervals:
+    bandwidth_check_seconds: 10
+    connection_check_seconds: 30
+    security_scan_minutes: 5
+    usage_report_hours: 24
+
+# Security Settings
+security:
+  # Intrusion detection
+  intrusion_detection:
+    enabled: true
+    max_failed_attempts: 5
+    lockout_minutes: 15
+    scan_interval_seconds: 60
+  
+  # Rate limiting
+  rate_limiting:
+    enabled: true
+    max_connections_per_ip: 10
+    max_requests_per_minute: 100
+    burst_allowance: 20
+  
+  # Firewall integration
+  firewall:
+    enabled: true
+    block_suspicious_ips: true
+    allow_ping: true
+    log_blocked_attempts: true
+  
+  # Certificate validation
+  certificate_validation:
+    strict_mode: true
+    check_revocation: true
+    require_valid_chain: true
+
+# Administrative Settings
+admin:
+  # Web interface settings
+  web_interface:
+    enabled: true
+    port: 8443
+    ssl_enabled: true
+    cert_file: "/etc/ssl/certs/ncuk-admin.pem"
+    key_file: "/etc/ssl/private/ncuk-admin.key"
+  
+  # API settings
+  api:
+    enabled: true
+    port: 8080
+    auth_required: true
+    rate_limit_requests_per_minute: 60
+  
+  # Backup settings
+  backup:
+    enabled: true
+    interval_hours: 6
+    keep_backups: 10
+    backup_path: "/var/backups/ncuk-wifi"
+  
+  # Maintenance
+  maintenance:
+    auto_cleanup: true
+    cleanup_interval_hours: 24
+    vacuum_database: true
+    optimize_rules: true
+
+# Database Settings
+database:
+  # SQLite database for local storage
+  type: "sqlite"
+  path: "/var/lib/ncuk-wifi/database.db"
+  backup_enabled: true
+  
+  # Connection pool settings
+  connection_pool:
+    max_connections: 10
+    timeout_seconds: 30
+  
+  # Maintenance
+  auto_vacuum: true
+  journal_mode: "WAL"
+
+# Integration Settings
+integration:
+  # LDAP/Active Directory integration
+  ldap:
+    enabled: false
+    server: "ldap.ncuk.edu"
+    port: 389
+    use_ssl: true
+    base_dn: "ou=users,dc=ncuk,dc=edu"
+    bind_dn: "cn=wifiservice,ou=services,dc=ncuk,dc=edu"
+    bind_password: "ldap_service_password"
+    user_filter: "(objectClass=person)"
+    group_filter: "(objectClass=group)"
+  
+  # External authentication
+  external_auth:
+    enabled: false
+    type: "oauth2"  # oauth2, saml, cas
+    provider_url: "https://auth.ncuk.edu"
+    client_id: "ncuk_wifi_client"
+    client_secret: "oauth_client_secret"
+  
+  # SNMP monitoring
+  snmp:
+    enabled: false
+    community: "ncuk_readonly"
+    port: 161
+    version: "2c"
+
+# Performance Settings
+performance:
+  # Threading and concurrency
+  worker_threads: 4
+  max_concurrent_requests: 100
+  
+  # Caching
+  cache:
+    enabled: true
+    type: "memory"  # memory, redis, memcached
+    ttl_seconds: 300
+    max_entries: 10000
+  
+  # Connection pooling
+  connection_pooling:
+    enabled: true
+    pool_size: 20
+    max_overflow: 30
+    timeout_seconds: 30
+
+# Development and Testing
+development:
+  debug_mode: false
+  test_mode: false
+  mock_hardware: false
+  verbose_logging: false
+  development_tools_enabled: false

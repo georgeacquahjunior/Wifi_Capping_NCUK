@@ -1,0 +1,14 @@
+[Unit]
+Description=Wi-Fi Usage Capping Service for NCUK
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/wifi-capping-ncuk
+ExecStart=/usr/bin/python3 /opt/wifi-capping-ncuk/wifi_capping.py --monitor
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
